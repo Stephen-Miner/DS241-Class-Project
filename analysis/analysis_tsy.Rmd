@@ -1,0 +1,25 @@
+---
+title: "LODES Data - Tyler Yankee"
+output: html_notebook
+---
+
+## Load packages and data
+```{r}
+library(tidyverse)
+library(lehdr)
+```
+
+```{r}
+# no data for DC from 2020 or 2021
+dc_lodes_2019 = grab_lodes(state = "dc", year = "2019")
+```
+
+See the 2019 version of the technical document for descriptions of what the variables mean and other information: https://lehd.ces.census.gov/data/lodes/LODES7/LODESTechDoc7.4.pdf.
+
+Some quick ones:
+
+*  w/r_geocode: workplace/residential census block codes 
+* S000: total number of jobs
+* SA01-03: number of jobs broken down by age groups
+* SE01-03: number of jobs broken down by monthly income groups
+* SI01-03: number of jobs broken down by industry groups
