@@ -1,0 +1,72 @@
+```{r}
+library(lehdr)
+library(dplyr)
+```
+
+This is me playing with examples from [https://cran.r-project.org/web/packages/lehdr/vignettes/getting_started.html]
+
+```{r}
+or_od <- grab_lodes(state = "or", year = 2014, lodes_type = "od", job_type = "JT01", 
+           segment = "S000", state_part = "main", agg_geo = "tract")
+head(or_od)
+
+or_ri_od <- grab_lodes(state = c("or", "ri"), year = c(2013, 2014), lodes_type = "od", job_type = "JT01", 
+           segment = "S000", state_part = "main", agg_geo = "tract")     
+
+head(or_ri_od)
+```
+
+# Adding at County level signifiers
+```{r}
+md_rac <- grab_lodes(state = "md", year = 2015, lodes_type = "wac", job_type = "JT01", segment = "S000")
+
+head(md_rac)
+
+md_rac_county <- md_rac %>% mutate(w_county_fips = str_sub(w_geocode, 1, 5))
+
+head(md_rac_county)
+```
+
+# Aggregating at the County level
+```{r}
+md_rac_county <- md_rac %>% mutate(w_county_fips = str_sub(w_geocode, 1, 5)) %>% 
+  select(-"w_geocode") %>%
+  group_by(w_county_fips, state, year, createdate) %>% 
+  summarise_if(is.numeric, sum)
+
+head(md_rac_county)
+```
+
+```{r}
+md_rac_county <- grab_lodes(state = "md", year = 2015, lodes_type = "rac", job_type = "JT01", 
+           segment = "S000", agg_geo = "county")
+           
+head(md_rac_county)
+```
+
+# Aggregating Origin-Destination
+```{r}
+md_od_county <- grab_lodes(state = "md", year = 2015, lodes_type = "od", job_type = "JT01", 
+           segment = "S000", agg_geo = "county", state_part = "main")
+           
+head(md_od_county)
+```
+
+# Aggregating at Block Group, Tract, or State level
+```{r}
+md_rac_bg <- grab_lodes(state = "md", year = 2015, lodes_type = "rac", job_type = "JT01", 
+           segment = "S000", agg_geo = "bg")
+           
+head(md_rac_bg)
+
+md_rac_tract <- grab_lodes(state = "md", year = 2015, lodes_type = "rac", job_type = "JT01", 
+           segment = "S000", agg_geo = "tract")
+           
+head(md_rac_tract)
+
+md_rac_state <- grab_lodes(state = "md", year = 2015, lodes_type = "rac", job_type = "JT01", 
+           segment = "S000", agg_geo = "state")
+           
+head(md_rac_state)
+```
+
