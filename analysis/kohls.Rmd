@@ -9,9 +9,11 @@ output: github_document
 
 ##Installation
 ```{r}
+install.packages("lehdr")
+
+install.packages("devtools", repos = "http://cran.us.r-project.org")
 devtools::install_github("jamgreen/lehdr")
 ```
-
 
 ```{r}
 library(lehdr)
