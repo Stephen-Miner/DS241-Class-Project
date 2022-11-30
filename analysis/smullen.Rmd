@@ -1,0 +1,9 @@
+```{r}
+library(lehdr)
+library(dplyr)
+library(stringr)
+```
+```{r}
+dc_od <- grab_lodes(state = "dc", year = 2019, lodes_type = "od", job_type = "JT01", 
+           segment = "S000", state_part = "main", agg_geo = "tract")
+```
