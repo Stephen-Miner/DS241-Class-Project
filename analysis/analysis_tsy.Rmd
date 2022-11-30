@@ -7,11 +7,21 @@ output: html_notebook
 ```{r}
 library(tidyverse)
 library(lehdr)
+library(sf)
+library(tmap)
+library(tidycensus)
 ```
 
 ```{r}
 # no data for DC from 2020 or 2021
-dc_lodes_2019 = grab_lodes(state = "dc", year = "2019")
+lodes_od = grab_lodes(state = "dc", year = 2019, lodes_type = "od", job_type = "JT00",
+                           agg_geo = "tract")
+
+lodes_rac = grab_lodes(state = "dc", year = 2019, lodes_type = "rac", job_type = "JT00",
+                           agg_geo = "tract")
+
+lodes_wac = grab_lodes(state = "dc", year = 2019, lodes_type = "wac", job_type = "JT00",
+                           agg_geo = "tract")
 ```
 
 See the 2019 version of the technical document for descriptions of what the variables mean and other information: https://lehd.ces.census.gov/data/lodes/LODES7/LODESTechDoc7.4.pdf.
@@ -23,3 +33,29 @@ Some quick ones:
 * SA01-03: number of jobs broken down by age groups
 * SE01-03: number of jobs broken down by monthly income groups
 * SI01-03: number of jobs broken down by industry groups
+
+## Quick observation
+
+```{r}
+same = lodes_od %>% filter(w_tract == h_tract)
+```
+
+## Load census data
+```{r}
+census = get_acs(geography = "tract",
+                 variables = c("total_pop"="B01003_001", "worker_living"="B08301_001"),
+                 state = "DC", geometry = TRUE)
+census_wide = census %>% pivot_wider(id_cols = c("GEOID","NAME", "geometry"), 
+                                     names_from = "variable", values_from = "estimate")
+```
+
+```{r}
+df = inner_join(lodes_wac, census_wide, by=c("w_tract" = "GEOID"))
+```
+
+
+```{r}
+tmap_mode("view")
+df %>% mutate(ratio = CS01/CS02) %>% tm_shape() + tm_polygons(c("ratio"), alpha=.4)
+```
+
