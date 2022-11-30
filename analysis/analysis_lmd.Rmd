@@ -10,6 +10,11 @@ install.packages("lehdr")
 ```{r}
 library(lehdr)
 library(dplyr)
+library(knitr)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
 #library(devtools)
 ```
 
@@ -33,4 +38,39 @@ lode_data <- grab_lodes(state = "dc", year = 2019, lodes_type = "od", job_type =
 
 head(lode_data)
 ```
+
+
+```{r}
+lode_data <- grab_lodes(state = "dc", year = 2019, lodes_type = "od", job_type = "JT01",
+           segment = "S000", state_part = "aux", agg_geo = "tract")
+
+head(lode_data)
+```
+
+
+```{r}
+
+dc_lode_data_wac <- grab_lodes(state = "dc", year = 2019, lodes_type = "wac", job_type = "JT01",
+           segment = "S000", state_part = "aux", agg_geo = "tract")
+
+dc_lode_data_rac <- grab_lodes(state = "dc", year = 2019, lodes_type = "rac", job_type = "JT01",
+           segment = "S000", state_part = "aux", agg_geo = "tract")
+
+head(dc_lode_data_wac)
+
+```
+
+```{r}
+#df_census = get_acs(geography = "tract")
+```
+
+
+
+
+
+
+
+
+
+
 
