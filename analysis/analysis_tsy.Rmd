@@ -3,59 +3,99 @@ title: "LODES Data - Tyler Yankee"
 output: html_notebook
 ---
 
-## Load packages and data
+## Load packages
 ```{r}
 library(tidyverse)
 library(lehdr)
 library(sf)
 library(tmap)
 library(tidycensus)
+library(janitor)
+library(here)
+library(lubridate)
 ```
-
-```{r}
-# no data for DC from 2020 or 2021
-lodes_od = grab_lodes(state = "dc", year = 2019, lodes_type = "od", job_type = "JT00",
-                           agg_geo = "tract")
-
-lodes_rac = grab_lodes(state = "dc", year = 2019, lodes_type = "rac", job_type = "JT00",
-                           agg_geo = "tract")
-
-lodes_wac = grab_lodes(state = "dc", year = 2019, lodes_type = "wac", job_type = "JT00",
-                           agg_geo = "tract")
-```
+## Load LODES Data
 
 See the 2019 version of the technical document for descriptions of what the variables mean and other information: https://lehd.ces.census.gov/data/lodes/LODES7/LODESTechDoc7.4.pdf.
 
-Some quick ones:
+Three kinds of data:
 
-*  w/r_geocode: workplace/residential census block codes 
+* "od" - origin to destination (info on both residence and workplace of workers)
+* "rac" - residential information of workers
+* "wac" - workplace information of workers
+
+Some quick examples of data codes for od:
+
+* w/r_geocode: workplace/residential census block codes 
 * S000: total number of jobs
 * SA01-03: number of jobs broken down by age groups
 * SE01-03: number of jobs broken down by monthly income groups
 * SI01-03: number of jobs broken down by industry groups
 
-## Quick observation
+```{r}
+dc_od <- grab_lodes(state ="dc", year = 2019, lodes_type = "od", job_type = "JT01", 
+           segment = "S000", state_part = "aux", agg_geo = "tract",use_cache=TRUE)
+
+dc_wac <- grab_lodes(state = c("dc"), year = 2019, lodes_type = "wac", job_type = "JT00", 
+           segment = "S000", state_part = "aux", agg_geo = "tract") %>% filter(state=="DC")
+
+dc_rac <- grab_lodes(state = c("dc"), year = 2019, lodes_type = "rac", job_type = "JT00", 
+           segment = "S000", state_part = "aux", agg_geo = "tract") %>% filter(state=="DC")
+```
+
+How many people work in DC?
+Note the difference between the two sums --- # or workers vs # of workers who live in that area.
 
 ```{r}
-same = lodes_od %>% filter(w_tract == h_tract)
+sum(dc_wac$C000)
+sum(dc_rac$C000)
 ```
 
 ## Load census data
+
 ```{r}
-census = get_acs(geography = "tract",
-                 variables = c("total_pop"="B01003_001", "worker_living"="B08301_001"),
-                 state = "DC", geometry = TRUE)
-census_wide = census %>% pivot_wider(id_cols = c("GEOID","NAME", "geometry"), 
-                                     names_from = "variable", values_from = "estimate")
+#census_api_key("4c7e5b613afdf7d2fd6d80005f53282c9a7c1bae")
+v20 = load_variables(2019,"acs5",cache=TRUE)
+df_census=get_acs(geography = "tract",
+                  variables=c("total_pop"="B01003_001",
+                              "worker_living"="B08301_001"),
+                  state="DC",geometry=TRUE,year=2019)
 ```
 
 ```{r}
-df = inner_join(lodes_wac, census_wide, by=c("w_tract" = "GEOID"))
+df_cens=df_census %>% rename(val=estimate) %>%  
+  pivot_wider(names_from = "variable",
+              values_from = c("val","moe")) %>%
+  clean_names()
 ```
 
+## Merge census and lodes data
 
+By joining wac data to census data, we now have a dataframe will all the data AND the geometry by tract.
+```{r}
+df_c=df_cens %>% left_join(dc_wac,by=c("geoid"="w_tract"))
+```
+
+## Skufca sample visualizations
+
+Where do men and women work?
 ```{r}
 tmap_mode("view")
-df %>% mutate(ratio = CS01/CS02) %>% tm_shape() + tm_polygons(c("ratio"), alpha=.4)
+df_c1 = df_c %>% select(pop = val_total_pop, men = CS01, women = CS02) %>%
+  mutate(ratio=women/men)
+df_c1 %>% tm_shape() + 
+  tm_polygons(c("pop", "men", "women"), alpha = .4)
 ```
 
+Examine the ratio between the men and women groups rather than visualizing them separately; this is a more useful result on which to base conclusions.
+```{r}
+df_c1 %>% tm_shape() + tm_polygons(c("ratio"), alpha = .4)
+```
+
+Look at racial/ethnic differences in where people work.
+```{r}
+df_c2 = df_c %>% select(white_workers = CR01, black_workers = CR02, 
+                        hispanic_workers = CT02)
+df_c2 %>% tm_shape() + 
+  tm_polygons(c("white_workers", "black_workers", "hispanic_workers"), alpha = .4)
+```
