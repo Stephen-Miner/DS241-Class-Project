@@ -71,9 +71,9 @@ df_cens=df_census %>% rename(val=estimate) %>%
 
 ## Merge census and lodes data
 
-By joining wac data to census data, we now have a dataframe will all the data AND the geometry by tract.
+By joining wac data to census data, we now have a dataframe with all the data AND the geometry by tract.
 ```{r}
-df_c=df_cens %>% left_join(dc_wac,by=c("geoid"="w_tract"))
+df_c = df_cens %>% left_join(dc_wac, by = c("geoid" = "w_tract"))
 ```
 
 ## Skufca sample visualizations
@@ -99,3 +99,28 @@ df_c2 = df_c %>% select(white_workers = CR01, black_workers = CR02,
 df_c2 %>% tm_shape() + 
   tm_polygons(c("white_workers", "black_workers", "hispanic_workers"), alpha = .4)
 ```
+
+## My visualizations
+
+Analyze age, income, and education level distributions.
+
+Starting with age:
+```{r}
+df_c3 = df_c %>% select(a29 = CA01, a3054 = CA02, a55 = CA03)
+
+df_c3 %>% tm_shape() + tm_polygons(c("a29", "a3054", "a55"), alpha = .4)
+```
+
+
+...then income:
+```{r}
+df_c4 = df_c %>% select(i1250 = CE01, i12513333 = CE02, i3334 = CE03)
+df_c4 %>% tm_shape() + tm_polygons(c("i1250", "i12513333", "i3334"), alpha = .4)
+```
+
+...then education level.
+```{r}
+df_c5 = df_c %>% select(elhs = CD01, ehs = CD02, eassoc = CD03, ebac = CD04)
+df_c5 %>% tm_shape() + tm_polygons(c("elhs", "ehs", "eassoc", "ebac"), alpha = .4)
+```
+
