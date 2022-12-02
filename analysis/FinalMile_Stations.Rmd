@@ -118,10 +118,27 @@ final_mile_stations = pull(final_mile1_grouped %>% filter(count > 10) %>%
 final_mile1 %>% filter(close_station %in% final_mile_stations) %>% 
   ggplot(aes(x = distance)) + 
   geom_histogram(bins = 75) +
-  facet_wrap(~close_station, scales = "free")
+  facet_wrap(~close_station, scales = "free") +
+  labs(title = "Where are people going after the metro?",
+       subtitle = "Peaks indicate the number of bikeshare stations people are going to and how far away they are",
+       x = "Distance from Metro Station (km)",
+       y = "Number of Rides",
+       caption = "Sample of bikeshare data is from September 2022.")
 ```
 
 The fact that these distributions look weird actually makes sense - the number of peaks on each histogram (most are just 1, but some 2 or 3) correspond to the number of close bikeshare stations that people are going to. Looking at average distance ridden on the bike after that will probably be a more interesting result.
+
+```{r}
+final_mile1 %>% filter(close_station %in% final_mile_stations) %>% 
+  ggplot(aes(x = start_to_end)) + 
+  geom_histogram(bins = 75) +
+  facet_wrap(~close_station, scales = "free_y") +
+  labs(title = "How far is the \"final mile\" bike ride?",
+       x = "Distance Biked (km)",
+       y = "Number of Rides",
+       caption = "Sample of bikeshare data is from September 2022.")
+```
+
 
 ```{r}
 
