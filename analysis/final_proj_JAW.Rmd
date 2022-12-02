@@ -51,4 +51,25 @@ df_census=get_acs(geography = "tract",
                   state="DC",geometry=TRUE,year=2019) 
 ```
 
+## Load bike data
+```{r}
+bike_data <- read_csv("202209-capitalbikeshare-tripdata.csv") %>% clean_names()
+```
+```{r}
+bike_data_sf <- bike_data %>%
+  mutate_at(vars(start_lat, start_lng), as.numeric) %>%
+  st_as_sf(
+    coords = c("start_lat", "start_lng"), 
+    agr = "constant",
+    crs = "4326"
+  ) %>%
+  sample_n(1000)
+
+st_crs(bike_data_sf) <- 4326
+
+bike_data_sf_1 <- bike_data_sf %>%
+  select(geometry) %>%
+  rename(geom_points = geometry)
+```
+
 

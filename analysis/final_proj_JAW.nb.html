@@ -1808,10 +1808,14 @@ library(sp)</code></pre>
 <h2>Load census data</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2Vuc3VzX2FwaV9rZXkoXCI0YzdlNWI2MTNhZmRmN2QyZmQ2ZDgwMDA1ZjUzMjgyYzlhN2MxYmFlXCIpXG5cbiN3aGF0IHZhcmlhYmxlc1xudjIwID0gbG9hZF92YXJpYWJsZXMoMjAxOSxcImFjczVcIixjYWNoZT1UUlVFKVxuIyBtZWRpYW5fZmFtaWx5X2luY29tZT1cIlx0QjA2MDExXzAwMVwiIFxuIyBhbGwgXCJCMDAwMDFfMDAxXCJcdFxuI2JsYWNrIFwiQjAyMDA5XzAwMVwiXG5gYGAifQ== -->
-<pre class="r"><code>census_api_key(&quot;4c7e5b613afdf7d2fd6d80005f53282c9a7c1bae&quot;)
-
-#what variables
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2Vuc3VzX2FwaV9rZXkoXCI0YzdlNWI2MTNhZmRmN2QyZmQ2ZDgwMDA1ZjUzMjgyYzlhN2MxYmFlXCIpXG5gYGAifQ== -->
+<pre class="r"><code>census_api_key(&quot;4c7e5b613afdf7d2fd6d80005f53282c9a7c1bae&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiVG8gaW5zdGFsbCB5b3VyIEFQSSBrZXkgZm9yIHVzZSBpbiBmdXR1cmUgc2Vzc2lvbnMsIHJ1biB0aGlzIGZ1bmN0aW9uIHdpdGggYGluc3RhbGwgPSBUUlVFYC5cbiJ9 -->
+<pre><code>To install your API key for use in future sessions, run this function with `install = TRUE`.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3doYXQgdmFyaWFibGVzXG52MjAgPSBsb2FkX3ZhcmlhYmxlcygyMDE5LFwiYWNzNVwiLGNhY2hlPVRSVUUpXG4jIG1lZGlhbl9mYW1pbHlfaW5jb21lPVwiXHRCMDYwMTFfMDAxXCIgXG4jIGFsbCBcIkIwMDAwMV8wMDFcIlx0XG4jYmxhY2sgXCJCMDIwMDlfMDAxXCJcbmBgYCJ9 -->
+<pre class="r"><code>#what variables
 v20 = load_variables(2019,&quot;acs5&quot;,cache=TRUE)
 # median_family_income=&quot;    B06011_001&quot; 
 # all &quot;B00001_001&quot;  
@@ -1826,12 +1830,67 @@ v20 = load_variables(2019,&quot;acs5&quot;,cache=TRUE)
                               &quot;worker_living&quot;=&quot;B08301_001&quot;),
                   state=&quot;DC&quot;,geometry=TRUE,year=2019) </code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiR2V0dGluZyBkYXRhIGZyb20gdGhlIDIwMTUtMjAxOSA1LXllYXIgQUNTXG5Eb3dubG9hZGluZyBmZWF0dXJlIGdlb21ldHJ5IGZyb20gdGhlIENlbnN1cyB3ZWJzaXRlLiAgVG8gY2FjaGUgc2hhcGVmaWxlcyBmb3IgdXNlIGluIGZ1dHVyZSBzZXNzaW9ucywgc2V0IGBvcHRpb25zKHRpZ3Jpc191c2VfY2FjaGUgPSBUUlVFKWAuXG5Vc2luZyBGSVBTIGNvZGUgJzExJyBmb3Igc3RhdGUgJ0RDJ1xuIn0= -->
+<pre><code>Getting data from the 2015-2019 5-year ACS
+Downloading feature geometry from the Census website.  To cache shapefiles for use in future sessions, set `options(tigris_use_cache = TRUE)`.
+Using FIPS code &#39;11&#39; for state &#39;DC&#39;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHwgICAwJVxuICB8ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXG4gIHw9PT09ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB8ICAgNCVcbiAgfCAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFxuICB8PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PSAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgfCAgNjclXG4gIHwgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcbiAgfD09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PXwgMTAwJVxuIn0= -->
+<pre><code>
+  |                                                                                                                        
+  |                                                                                                                  |   0%
+  |                                                                                                                        
+  |====                                                                                                              |   4%
+  |                                                                                                                        
+  |============================================================================                                      |  67%
+  |                                                                                                                        
+  |==================================================================================================================| 100%</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="load-bike-data" class="section level2">
+<h2>Load bike data</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhIDwtIHJlYWRfY3N2KFwiMjAyMjA5LWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2XCIpICU+JSBjbGVhbl9uYW1lcygpXG5gYGAifQ== -->
+<pre class="r"><code>bike_data &lt;- read_csv(&quot;202209-capitalbikeshare-tripdata.csv&quot;) %&gt;% clean_names()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogMzg2MDg1IENvbHVtbnM6IDEzXG7ilIDilIAgQ29sdW1uIHNwZWNpZmljYXRpb24g4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSAXG5EZWxpbWl0ZXI6IFwiLFwiXG5jaHIgICg1KTogcmlkZV9pZCwgcmlkZWFibGVfdHlwZSwgc3RhcnRfc3RhdGlvbl9uYW1lLCBlbmRfc3RhdGlvbl9uYW1lLCBtZW1iZXJfY2FzdWFsXG5kYmwgICg2KTogc3RhcnRfc3RhdGlvbl9pZCwgZW5kX3N0YXRpb25faWQsIHN0YXJ0X2xhdCwgc3RhcnRfbG5nLCBlbmRfbGF0LCBlbmRfbG5nXG5kdHRtICgyKTogc3RhcnRlZF9hdCwgZW5kZWRfYXRcblxu4oS5IFVzZSBgc3BlYygpYCB0byByZXRyaWV2ZSB0aGUgZnVsbCBjb2x1bW4gc3BlY2lmaWNhdGlvbiBmb3IgdGhpcyBkYXRhLlxu4oS5IFNwZWNpZnkgdGhlIGNvbHVtbiB0eXBlcyBvciBzZXQgYHNob3dfY29sX3R5cGVzID0gRkFMU0VgIHRvIHF1aWV0IHRoaXMgbWVzc2FnZS5cbiJ9 -->
+<pre><code>Rows: 386085 Columns: 13
+── Column specification ────────────────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr  (5): ride_id, rideable_type, start_station_name, end_station_name, member_casual
+dbl  (6): start_station_id, end_station_id, start_lat, start_lng, end_lat, end_lng
+dttm (2): started_at, ended_at
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhX3NmIDwtIGJpa2VfZGF0YSAlPiVcbiAgbXV0YXRlX2F0KHZhcnMoc3RhcnRfbGF0LCBzdGFydF9sbmcpLCBhcy5udW1lcmljKSAlPiVcbiAgc3RfYXNfc2YoXG4gICAgY29vcmRzID0gYyhcInN0YXJ0X2xhdFwiLCBcInN0YXJ0X2xuZ1wiKSwgXG4gICAgYWdyID0gXCJjb25zdGFudFwiLFxuICAgIGNycyA9IFwiNDMyNlwiXG4gICkgJT4lXG4gIHNhbXBsZV9uKDEwMDApXG5cbnN0X2NycyhiaWtlX2RhdGFfc2YpIDwtIDQzMjZcblxuYmlrZV9kYXRhX3NmXzEgPC0gYmlrZV9kYXRhX3NmICU+JVxuICBzZWxlY3QoZ2VvbWV0cnkpICU+JVxuICByZW5hbWUoZ2VvbV9wb2ludHMgPSBnZW9tZXRyeSlcbmBgYCJ9 -->
+<pre class="r"><code>bike_data_sf &lt;- bike_data %&gt;%
+  mutate_at(vars(start_lat, start_lng), as.numeric) %&gt;%
+  st_as_sf(
+    coords = c(&quot;start_lat&quot;, &quot;start_lng&quot;), 
+    agr = &quot;constant&quot;,
+    crs = &quot;4326&quot;
+  ) %&gt;%
+  sample_n(1000)
+
+st_crs(bike_data_sf) &lt;- 4326
+
+bike_data_sf_1 &lt;- bike_data_sf %&gt;%
+  select(geometry) %&gt;%
+  rename(geom_points = geometry)</code></pre>
+<!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIk1lbWJlciB2ZXJzdXMgQ2FzdWFsIg0KZGF0ZTogICIyMDIyLTEyLTIiDQphdXRob3I6ICJKb3NlcGggV2hpdGUiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpUaGlzIG5vdGVib29rcyB3aWxsIHRyeSB0byB1c2UgdGhlIGBsZWhkcmAgcGFja2FnZSB0byBnZXQgYXQgZGV0YWlsZWQgZGVtb2dyYXBoaWMgZGF0YQ0KDQojIyBJbnN0YWxsIGxlaGRyDQpSdW4gdGhpcyBjb2RlIG9ubHkgb25jZS4NCmBgYHtyfQ0KI2RldnRvb2xzOjppbnN0YWxsX2dpdGh1YigiamFtZ3JlZW4vbGVoZHIiKQ0KYGBgDQoNCiMjIFBhY2thZ2VzDQpgYGB7cn0NCmxpYnJhcnkoa25pdHIpDQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmxpYnJhcnkoamFuaXRvcikNCmxpYnJhcnkobHVicmlkYXRlKSAjIGJlY2F1c2Ugd2Ugd2lsbCBwcm9iYWJseSBzZWUgc29tZSBkYXRlcw0KbGlicmFyeShoZXJlKSAjIGEgcGFja2FnZSBJIGhhdmVuJ3QgdGF1Z2h0IHlvdSBhYm91dCBiZWZvcmUgdGhhdCBkb2Vzbid0IGRvIG11Y2gsIGJ1dCAuLi4uDQpgYGANCmBgYHtyfQ0KbGlicmFyeShzZikgIyB3b3JraW5nIHdpdGggc2ltcGxlIGZlYXR1cmVzIC0gZ2Vvc3BhdGlhbA0KbGlicmFyeSh0bWFwKQ0KbGlicmFyeSh0aWR5Y2Vuc3VzKQ0KbGlicmFyeShsZWhkcikNCmxpYnJhcnkocm5hdHVyYWxlYXJ0aCkNCmxpYnJhcnkoV0RJKQ0KbGlicmFyeSh0aWdyaXMpDQpsaWJyYXJ5KHJnZGFsKQ0KbGlicmFyeShzcCkNCmBgYA0KDQojIyBMb2FkIGNlbnN1cyBkYXRhDQpgYGB7cn0NCmNlbnN1c19hcGlfa2V5KCI0YzdlNWI2MTNhZmRmN2QyZmQ2ZDgwMDA1ZjUzMjgyYzlhN2MxYmFlIikNCg0KI3doYXQgdmFyaWFibGVzDQp2MjAgPSBsb2FkX3ZhcmlhYmxlcygyMDE5LCJhY3M1IixjYWNoZT1UUlVFKQ0KIyBtZWRpYW5fZmFtaWx5X2luY29tZT0iCUIwNjAxMV8wMDEiIA0KIyBhbGwgIkIwMDAwMV8wMDEiCQ0KI2JsYWNrICJCMDIwMDlfMDAxIg0KYGBgDQpgYGB7cn0NCmRmX2NlbnN1cz1nZXRfYWNzKGdlb2dyYXBoeSA9ICJ0cmFjdCIsDQogICAgICAgICAgICAgICAgICB2YXJpYWJsZXM9YygNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJ0b3RhbF9wb3AiPSJCMDEwMDNfMDAxIiwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJ3b3JrZXJfbGl2aW5nIj0iQjA4MzAxXzAwMSIpLA0KICAgICAgICAgICAgICAgICAgc3RhdGU9IkRDIixnZW9tZXRyeT1UUlVFLHllYXI9MjAxOSkgDQpgYGANCg0KDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIk1lbWJlciB2ZXJzdXMgQ2FzdWFsIg0KZGF0ZTogICIyMDIyLTEyLTIiDQphdXRob3I6ICJKb3NlcGggV2hpdGUiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpUaGlzIG5vdGVib29rcyB3aWxsIHRyeSB0byB1c2UgdGhlIGBsZWhkcmAgcGFja2FnZSB0byBnZXQgYXQgZGV0YWlsZWQgZGVtb2dyYXBoaWMgZGF0YQ0KDQojIyBJbnN0YWxsIGxlaGRyDQpSdW4gdGhpcyBjb2RlIG9ubHkgb25jZS4NCmBgYHtyfQ0KI2RldnRvb2xzOjppbnN0YWxsX2dpdGh1YigiamFtZ3JlZW4vbGVoZHIiKQ0KYGBgDQoNCiMjIFBhY2thZ2VzDQpgYGB7cn0NCmxpYnJhcnkoa25pdHIpDQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmxpYnJhcnkoamFuaXRvcikNCmxpYnJhcnkobHVicmlkYXRlKSAjIGJlY2F1c2Ugd2Ugd2lsbCBwcm9iYWJseSBzZWUgc29tZSBkYXRlcw0KbGlicmFyeShoZXJlKSAjIGEgcGFja2FnZSBJIGhhdmVuJ3QgdGF1Z2h0IHlvdSBhYm91dCBiZWZvcmUgdGhhdCBkb2Vzbid0IGRvIG11Y2gsIGJ1dCAuLi4uDQpgYGANCmBgYHtyfQ0KbGlicmFyeShzZikgIyB3b3JraW5nIHdpdGggc2ltcGxlIGZlYXR1cmVzIC0gZ2Vvc3BhdGlhbA0KbGlicmFyeSh0bWFwKQ0KbGlicmFyeSh0aWR5Y2Vuc3VzKQ0KbGlicmFyeShsZWhkcikNCmxpYnJhcnkocm5hdHVyYWxlYXJ0aCkNCmxpYnJhcnkoV0RJKQ0KbGlicmFyeSh0aWdyaXMpDQpsaWJyYXJ5KHJnZGFsKQ0KbGlicmFyeShzcCkNCmBgYA0KDQojIyBMb2FkIGNlbnN1cyBkYXRhDQpgYGB7cn0NCmNlbnN1c19hcGlfa2V5KCI0YzdlNWI2MTNhZmRmN2QyZmQ2ZDgwMDA1ZjUzMjgyYzlhN2MxYmFlIikNCg0KI3doYXQgdmFyaWFibGVzDQp2MjAgPSBsb2FkX3ZhcmlhYmxlcygyMDE5LCJhY3M1IixjYWNoZT1UUlVFKQ0KIyBtZWRpYW5fZmFtaWx5X2luY29tZT0iCUIwNjAxMV8wMDEiIA0KIyBhbGwgIkIwMDAwMV8wMDEiCQ0KI2JsYWNrICJCMDIwMDlfMDAxIg0KYGBgDQpgYGB7cn0NCmRmX2NlbnN1cz1nZXRfYWNzKGdlb2dyYXBoeSA9ICJ0cmFjdCIsDQogICAgICAgICAgICAgICAgICB2YXJpYWJsZXM9YygNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJ0b3RhbF9wb3AiPSJCMDEwMDNfMDAxIiwNCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJ3b3JrZXJfbGl2aW5nIj0iQjA4MzAxXzAwMSIpLA0KICAgICAgICAgICAgICAgICAgc3RhdGU9IkRDIixnZW9tZXRyeT1UUlVFLHllYXI9MjAxOSkgDQpgYGANCg0KIyMgTG9hZCBiaWtlIGRhdGENCmBgYHtyfQ0KYmlrZV9kYXRhIDwtIHJlYWRfY3N2KCIyMDIyMDktY2FwaXRhbGJpa2VzaGFyZS10cmlwZGF0YS5jc3YiKSAlPiUgY2xlYW5fbmFtZXMoKQ0KYGBgDQpgYGB7cn0NCmJpa2VfZGF0YV9zZiA8LSBiaWtlX2RhdGEgJT4lDQogIG11dGF0ZV9hdCh2YXJzKHN0YXJ0X2xhdCwgc3RhcnRfbG5nKSwgYXMubnVtZXJpYykgJT4lDQogIHN0X2FzX3NmKA0KICAgIGNvb3JkcyA9IGMoInN0YXJ0X2xhdCIsICJzdGFydF9sbmciKSwgDQogICAgYWdyID0gImNvbnN0YW50IiwNCiAgICBjcnMgPSAiNDMyNiINCiAgKSAlPiUNCiAgc2FtcGxlX24oMTAwMCkNCg0Kc3RfY3JzKGJpa2VfZGF0YV9zZikgPC0gNDMyNg0KDQpiaWtlX2RhdGFfc2ZfMSA8LSBiaWtlX2RhdGFfc2YgJT4lDQogIHNlbGVjdChnZW9tZXRyeSkgJT4lDQogIHJlbmFtZShnZW9tX3BvaW50cyA9IGdlb21ldHJ5KQ0KYGBgDQoNCg0K</div>
 
 
 
