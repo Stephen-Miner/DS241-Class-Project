@@ -1,0 +1,129 @@
+---
+title: "Final Mile - Station (Grouped Data) Analysis"
+output: html_notebook
+author: "Tyler Yankee"
+date: "2022-12-02"
+---
+
+Load packages
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library(sf)
+library(tmap)
+library(geojsonsf)
+library(matrixStats)
+library(geosphere)
+bikeshare = read_csv(here("data_raw", "202209-capitalbikeshare-tripdata.zip")) %>%
+  clean_names()
+metro_stations = read_csv(here("data_raw", "Metro_Stations_in_DC.csv")) %>%
+  clean_names()
+```
+
+NOTE: the following several code chunks are copied directly from FinalMileOriginal.Rmd.
+
+Define the Haversine distance function so we can compute distance between things
+```{r}
+# This function takes five arguments:
+# 
+# Longitude and latitude of the first location
+# Longitude and latitude of the second location
+# A parameter by which to round the responses
+
+haversine <- function(long1, lat1, long2, lat2, round = 3) {
+  # convert to radians
+  long1 = long1 * pi / 180
+  lat1  = lat1  * pi / 180
+  long2 = long2 * pi / 180
+  lat2  = lat2  * pi / 180
+  
+  R = 6371 # Earth mean radius in km
+  
+  a = sin((lat2 - lat1)/2)^2 + cos(lat1) * cos(lat2) * sin((long2 - long1)/2)^2
+  d = R * 2 * asin(sqrt(a))
+  
+  return( round(d,round) ) # distance in km
+}
+```
+
+Just doing a sample for a Monday, this is for September 5, 2022, the first Monday of the month.
+```{r}
+bikeshare1 = bikeshare %>% select(ride_id, slat = start_lat, slng = start_lng) %>% na.omit() 
+metro_stations1 = metro_stations %>% select(end_station_name = name, lat = y, lng = x) %>% na.omit()
+```
+
+https://stackoverflow.com/questions/58831578/minimum-distance-between-lat-long-across-multiple-data-frames
+Finds the closest station to bikes endpoint, adds station name and distance to the bikshare dataframe.
+
+```{r}
+#calculate the distance matrix
+distmatrix<-distm(bikeshare1[, c(3, 2)], metro_stations1[,c(3, 2)])
+#find closest column and get distance
+closest<-apply(distmatrix, 1, which.min)
+bikeshare1$close_station <- as.character(metro_stations1$end_station_name[closest])
+bikeshare1$distance <- apply(distmatrix, 1, min)/1000
+```
+
+Counts the amount of bikes parked within 0.1524/500ft, close enough to consider bike being used for final mile.
+```{r}
+final_mile = bikeshare1 %>% filter(distance < 0.1524) 
+bikeshare_end = bikeshare %>% select(ride_id, elat = end_lat, elng = end_lng)
+new = left_join(final_mile, bikeshare_end, by = "ride_id")
+```
+
+```{r}
+final_mile1 = new %>% mutate(start_to_end = haversine(slng, slat, elng, elat))
+final_mile1 = final_mile1 %>% filter(start_to_end <= 1.60934 & start_to_end != 0) %>% select(ride_id, close_station, distance, start_to_end)
+```
+
+Make all of the data frames that we'll use for analysis.
+```{r}
+final_mile1_grouped = final_mile1 %>% group_by(close_station) %>% 
+  summarise(count = n(), avg_distance_to_bikeshare = mean(distance), 
+            avg_ride_distance = mean(start_to_end))
+metro_stations_sf = metro_stations = 
+  geojson_sf(here("data_raw", "dc_metro_stations.geojson")) %>%
+  clean_names() %>% select(close_station = name, metro_location = geometry)
+final_mile1_geo = left_join(final_mile1_grouped, metro_stations_sf, by="close_station")
+final_mile1_geo = st_as_sf(x = final_mile1_geo, crs = st_crs(metro_stations_sf))
+```
+
+NEW ANALYSIS BEGINS HERE
+
+Again, from FinalMileOriginal, here are the main goals of the following analysis:
+
+* Analyze grouped data frame through distributions and comparing counts and average distances.
+* Visualizations: lines from start to end point for final mile rides, density distributions from above.
+
+Visualization: simple bar plot for number of final mile rides per metro station.
+```{r}
+final_mile1_grouped %>% ggplot(aes(x = reorder(close_station, -count))) + 
+  geom_bar(aes(weight = count)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "Most Popular DC Metro Stations for \"Final Mile\" Bikeshare Rides", 
+       x = "Metro Station", 
+       y = "Number of Final Mile Rides",
+       caption = "Sample of bikeshare data is from September 2022.")
+```
+
+Visualization: simple histogram for 
+1) average distance from metro station to bikeshare station 
+2) average distance ridden on the subsequent bike ride
+```{r}
+# Filter out the stations which have little to no rides - their distributions are garbage
+final_mile_stations = pull(final_mile1_grouped %>% filter(count > 10) %>%
+  select(close_station), close_station)
+final_mile1 %>% filter(close_station %in% final_mile_stations) %>% 
+  ggplot(aes(x = distance)) + 
+  geom_histogram(bins = 75) +
+  facet_wrap(~close_station, scales = "free")
+```
+
+The fact that these distributions look weird actually makes sense - the number of peaks on each histogram (most are just 1, but some 2 or 3) correspond to the number of close bikeshare stations that people are going to. Looking at average distance ridden on the bike after that will probably be a more interesting result.
+
+```{r}
+
+```
+
