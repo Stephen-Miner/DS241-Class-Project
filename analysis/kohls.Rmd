@@ -1,7 +1,7 @@
 ---
 title: "Getting Started with lehdr"
 author: "Sarah Kohls"
-date: "11/29/22"
+date: "2022-11-29"
 output: github_document
 ---
 ##Introduction
@@ -9,7 +9,13 @@ output: github_document
 
 ##Installation
 ```{r}
+install.packages("lehdr")
+
+install.packages("devtools", repos = "http://cran.us.r-project.org")
 devtools::install_github("jamgreen/lehdr")
+```
+
+```{r}
 library(lehdr)
 library(dplyr)
 library(stringr)
