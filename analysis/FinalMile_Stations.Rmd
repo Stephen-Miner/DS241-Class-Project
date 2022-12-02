@@ -105,7 +105,8 @@ final_mile1_grouped %>% ggplot(aes(x = reorder(close_station, -count))) +
   labs(title = "Most Popular DC Metro Stations for \"Final Mile\" Bikeshare Rides", 
        x = "Metro Station", 
        y = "Number of Final Mile Rides",
-       caption = "Sample of bikeshare data is from September 2022.")
+       caption = "Sample of bikeshare data is from September 2022.") +
+  scale_x_discrete(label = function(x) stringr::str_trunc(x, 20))
 ```
 
 Visualization: simple histogram for 
@@ -133,14 +134,23 @@ final_mile1 %>% filter(close_station %in% final_mile_stations) %>%
   ggplot(aes(x = start_to_end)) + 
   geom_histogram(bins = 75) +
   facet_wrap(~close_station, scales = "free_y") +
-  labs(title = "How far is the \"final mile\" bike ride?",
+  labs(title = "How far is the \"final mile\" bike ride from each metro station?",
        x = "Distance Biked (km)",
        y = "Number of Rides",
        caption = "Sample of bikeshare data is from September 2022.")
 ```
 
-
+Compare the average ride distance computed from the final_mile1_grouped dataframe using a lollipop plot, which is useful for when you have one numeric and one categorical variable.
 ```{r}
-
+final_mile1_grouped %>% ggplot(aes(x = reorder(close_station,-avg_ride_distance), 
+                                   y = avg_ride_distance)) +
+  geom_point() +
+  geom_segment(aes(x = close_station, xend = close_station, y = 0, yend = avg_ride_distance)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "How far is the average \"final mile\" ride from each metro station?", 
+       x = "Metro Station", 
+       y = "Average Distance Biked (km)",
+       caption = "Sample of bikeshare data is from September 2022.") +
+  scale_x_discrete(label = function(x) stringr::str_trunc(x, 20))
 ```
 
