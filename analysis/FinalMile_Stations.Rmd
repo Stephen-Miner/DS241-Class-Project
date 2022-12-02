@@ -17,7 +17,13 @@ library(geojsonsf)
 library(matrixStats)
 library(geosphere)
 bikeshare = read_csv(here("data_raw", "202209-capitalbikeshare-tripdata.zip")) %>%
-  clean_names()
+  clean_names() %>% mutate(start_station_name = case_when(
+    start_station_name == "11th & V st NW" ~ "11th & V St NW",
+    TRUE ~ start_station_name
+  ), end_station_name = case_when(
+    end_station_name == "11th & V st NW" ~ "11th & V St NW",
+    TRUE ~ end_station_name
+  ))
 metro_stations = read_csv(here("data_raw", "Metro_Stations_in_DC.csv")) %>%
   clean_names()
 ```
@@ -50,7 +56,8 @@ haversine <- function(long1, lat1, long2, lat2, round = 3) {
 
 Just doing a sample for a Monday, this is for September 5, 2022, the first Monday of the month.
 ```{r}
-bikeshare1 = bikeshare %>% select(ride_id, slat = start_lat, slng = start_lng) %>% na.omit() 
+bikeshare1 = bikeshare %>% select(ride_id, slat = start_lat, slng = start_lng,
+                                  bikeshare_start_station = start_station_name) %>% na.omit() 
 metro_stations1 = metro_stations %>% select(end_station_name = name, lat = y, lng = x) %>% na.omit()
 ```
 
@@ -75,7 +82,8 @@ new = left_join(final_mile, bikeshare_end, by = "ride_id")
 
 ```{r}
 final_mile1 = new %>% mutate(start_to_end = haversine(slng, slat, elng, elat))
-final_mile1 = final_mile1 %>% filter(start_to_end <= 1.60934 & start_to_end != 0) %>% select(ride_id, close_station, distance, start_to_end)
+final_mile1 = final_mile1 %>% filter(start_to_end <= 1.60934 & start_to_end != 0) %>%
+  select(ride_id, close_station, distance, start_to_end, bikeshare_start_station)
 ```
 
 Make all of the data frames that we'll use for analysis.
@@ -153,4 +161,61 @@ final_mile1_grouped %>% ggplot(aes(x = reorder(close_station,-avg_ride_distance)
        caption = "Sample of bikeshare data is from September 2022.") +
   scale_x_discrete(label = function(x) stringr::str_trunc(x, 20))
 ```
+
+New direction - spatial visualization (map)
+
+```{r}
+tmap_mode("view")
+tm_basemap(c(StreetMap = "OpenStreetMap")) + tm_shape(final_mile1_geo) +
+  tm_dots()
+```
+
+Code from https://gis.stackexchange.com/questions/419232/create-sf-points-and-then-lines-from-4-columns-in-a-data-frame-while-staying-in to make a line geometry in a dataframe in sf given 4 columns representing (x1,y1)->(x2,y2)
+```{r}
+make_line <- function(xy2){
+    st_linestring(matrix(xy2, nrow=2, byrow=TRUE))
+}
+
+make_lines <- function(df, names=c("x1","y1","x2","y2")){
+    m = as.matrix(df[,names])
+    lines = apply(m, 1, make_line, simplify=FALSE)
+    st_sfc(lines)
+}
+
+sf_pts_to_lines <- function(df, names=c("x1","y1","x2","y2")){
+    geom = make_lines(df, names)
+    df = st_sf(df, geometry=geom)
+    df
+}
+```
+
+
+Manipulate data frames to get all "final mile" pairings; that is, all lines between bikeshare stations and metro stations which are less than 500 ft apart.
+```{r}
+stations = bikeshare %>% select(bikeshare_start_station = start_station_name, 
+                                start_lng, start_lat) %>%
+  group_by(bikeshare_start_station) %>%
+  summarise(blng = mean(start_lng), blat = mean(start_lat)) %>%
+  mutate(across(where(is.numeric), round, 3))
+metro_stations_separate = metro_stations %>% mutate(
+  mlng = unlist(map(metro_location,1)), mlat = unlist(map(metro_location,2))) %>% 
+  st_drop_geometry() %>%
+  mutate(across(where(is.numeric), round, 3))
+final_mile2 = new %>% mutate(start_to_end = haversine(slng, slat, elng, elat)) %>%
+  filter(start_to_end <= 1.60934 & start_to_end != 0) %>%
+  select(bikeshare_start_station, close_station) %>%
+  group_by(bikeshare_start_station, close_station) %>%
+  summarise(count = n()) %>%
+  left_join(metro_stations_separate, by="close_station") %>%
+  left_join(stations, by="bikeshare_start_station") %>%
+  sf_pts_to_lines(c("blng","blat","mlng","mlat"))
+```
+
+Visualize these results.
+```{r}
+tm_basemap(c(StreetMap = "OpenStreetMap")) + tm_shape(final_mile2) +
+  tm_lines(lwd="count", scale = 5) +
+  tm_layout(title = "Metro Stations and Bikeshare Stations Within 500 ft of Each Other")
+```
+
 
