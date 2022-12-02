@@ -1,1 +1,54 @@
-test test
+---
+title: "Member versus Casual"
+date:  "2022-12-2"
+author: "Joseph White"
+output: html_notebook
+---
+
+This notebooks will try to use the `lehdr` package to get at detailed demographic data
+
+## Install lehdr
+Run this code only once.
+```{r}
+#devtools::install_github("jamgreen/lehdr")
+```
+
+## Packages
+```{r}
+library(knitr)
+library(tidyverse)
+library(janitor)
+library(lubridate) # because we will probably see some dates
+library(here) # a package I haven't taught you about before that doesn't do much, but ....
+```
+```{r}
+library(sf) # working with simple features - geospatial
+library(tmap)
+library(tidycensus)
+library(lehdr)
+library(rnaturalearth)
+library(WDI)
+library(tigris)
+library(rgdal)
+library(sp)
+```
+
+## Load census data
+```{r}
+census_api_key("4c7e5b613afdf7d2fd6d80005f53282c9a7c1bae")
+
+#what variables
+v20 = load_variables(2019,"acs5",cache=TRUE)
+# median_family_income="	B06011_001" 
+# all "B00001_001"	
+#black "B02009_001"
+```
+```{r}
+df_census=get_acs(geography = "tract",
+                  variables=c(
+                              "total_pop"="B01003_001",
+                              "worker_living"="B08301_001"),
+                  state="DC",geometry=TRUE,year=2019) 
+```
+
+
