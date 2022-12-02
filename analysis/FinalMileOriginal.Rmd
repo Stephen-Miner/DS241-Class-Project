@@ -1,9 +1,13 @@
 ---
-title: "LastMile"
-author: "Joseph LaPell"
+title: "Final Mile Original"
+author: "Joseph LaPell, Tyler Yankee, Minsum Kim"
 date: "2022-11-21"
 output: html_document
 ---
+
+This file is to be used for the original final mile analysis. Each person's own analysis will stem from this in new files.
+
+Load packages
 ```{r}
 library(tidyverse)
 library(here)
@@ -20,6 +24,7 @@ metro_stations = read_csv(here("data_raw", "Metro_Stations_in_DC.csv")) %>%
   clean_names()
 ```
 
+Define the Haversine distance function so we can compute distance between things
 ```{r}
 # This function takes five arguments:
 # 
@@ -43,14 +48,14 @@ haversine <- function(long1, lat1, long2, lat2, round = 3) {
 }
 ```
 
-# Just doing a sample for a monday, this is for September 5, 2022, the first monday of the month.
+Just doing a sample for a Monday, this is for September 5, 2022, the first Monday of the month.
 ```{r}
 bikeshare1 = bikeshare %>% select(ride_id, slat = start_lat, slng = start_lng) %>% na.omit() 
 metro_stations1 = metro_stations %>% select(end_station_name = name, lat = y, lng = x) %>% na.omit()
 ```
 
-# https://stackoverflow.com/questions/58831578/minimum-distance-between-lat-long-across-multiple-data-frames
-#Finds the closest station to bikes endpoint, adds station name and distance to the bikshare dataframe.
+https://stackoverflow.com/questions/58831578/minimum-distance-between-lat-long-across-multiple-data-frames
+Finds the closest station to bikes endpoint, adds station name and distance to the bikshare dataframe.
 
 ```{r}
 #calculate the distance matrix
@@ -61,7 +66,7 @@ bikeshare1$close_station <- as.character(metro_stations1$end_station_name[closes
 bikeshare1$distance <- apply(distmatrix, 1, min)/1000
 ```
 
-# Counts the amount of bikes parked within 0.1524/500ft, close enough to consider bike being used for final mile.
+Counts the amount of bikes parked within 0.1524/500ft, close enough to consider bike being used for final mile.
 ```{r}
 final_mile = bikeshare1 %>% filter(distance < 0.1524) 
 bikeshare_end = bikeshare %>% select(ride_id, elat = end_lat, elng = end_lng)
