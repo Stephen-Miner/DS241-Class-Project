@@ -1,0 +1,242 @@
+---
+title: "Accessing LEHD data"
+date:  "2022-11-28"
+author: "Coach Skufca"
+output: html_notebook
+---
+
+This notebooks will try to use the `lehdr` package to get at detailed demographic data (where are interest is understanding how many people WORK in each census tract in the DC area.)
+
+Primary resource is https://cran.r-project.org/web/packages/lehdr/vignettes/getting_started.html
+
+## Install lehdr
+
+
+Run this code only once.
+
+
+```{r}
+#devtools::install_github("jamgreen/lehdr")
+```
+
+
+## Packages
+
+Standards:
+
+```{r}
+library(knitr)
+library(tidyverse)
+library(janitor)
+library(lubridate) # because we will probably see some dates
+library(here) # a package I haven't taught you about before that doesn't do much, but ....
+```
+
+Some additional packages focused on today's work:
+
+```{r}
+library(sf) # working with simple features - geospatial
+library(tmap)
+library(tidycensus)
+library(lehdr)
+
+```
+## Informational resources for mapping
+
+* An overall resource on mapping in R: https://bookdown.org/nicohahn/making_maps_with_r5/docs/introduction.html
+* A starting point to learn about `sf`:  https://r-spatial.github.io/sf/articles/
+* Getting started with `tmap`: https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html
+* The `tidycensus` package: https://walker-data.com/tidycensus/index.html
+* The book on `tidycensus` : https://walker-data.com/census-r/index.html
+
+
+# From Vignette
+
+We will apply some of the ideas from the vignette: 
+
+https://cran.r-project.org/web/packages/lehdr/vignettes/getting_started.html
+
+One of the additional resources specified is this document which describes all of the variables in the data:
+
+https://lehd.ces.census.gov/data/lodes/LODES7/LODESTechDoc7.5.pdf
+
+
+## Proof of concept
+
+*Taking material and code directly from the vignette:*
+
+
+This first example pulls the Oregon (state = "or") 2014 (year = 2014), origin-destination (lodes_type = "od"), all jobs including private primary, secondary, and Federal (job_type = "JT01"), all jobs across ages, earnings, and industry (segment = "S000"), aggregated at the Census Tract level rather than the default Census Block (agg_geo = "tract").
+
+
+```{r}
+or_od <- grab_lodes(state = "or", year = 2014, lodes_type = "od", job_type = "JT00", 
+           segment = "S000", state_part = "main", agg_geo = "tract")
+
+head(or_od)
+```
+
+The package can be used to retrieve multiple states and years at the same time by creating a vector or list. This second example pulls the Oregon AND Rhode Island (state = c("or", "ri")) for 2013 and 2014 (year = c(2013, 2014) or year = 2013:2014).
+
+
+```{r}
+or_ri_od <- grab_lodes(state = c("or", "ri"), year = c(2013, 2014), lodes_type = "od", job_type = "JT01", 
+           segment = "S000", state_part = "main", agg_geo = "tract") 
+```
+
+    
+
+head(or_ri_od)
+Not all years are available for each state. To see all options for lodes_type, job_type, and segment and the availability for each state/year, please see the most recent LEHD Technical Document at https://lehd.ces.census.gov/data/lodes/LODES7/.
+
+Other common uses might include retrieving Residential or Work Area Characteristics (lodes_type = "rac" or lodes_type = "wac" respectively), low income jobs (segment = "SE01") or good producing jobs (segment = "SI01"). Other common geographies might include retrieving data at the Census Block level (agg_geo = "block", not necessary as it is default) – but see below for other aggregation levels.
+
+
+## Some DC data:
+
+Let's get lodes for DC.
+
+We will use `state_part="aux"` so that we get people working in DC who don't live there.
+
+We look at JT01 (primary job - the job that provides each person with the most earnings.)
+
+
+```{r}
+dc_od <- grab_lodes(state ="dc", year = 2019, lodes_type = "od", job_type = "JT01", 
+           segment = "S000", state_part = "aux", agg_geo = "tract",use_cache=TRUE)
+
+head(dc_od)
+```
+Total workers:
+
+```{r}
+sum(dc_od$S000)
+
+```
+
+
+
+
+Let's pull only workplace associate dataset:
+
+* "wac" aggegates jobs based on job location
+* "rac" aggreates worker based on their home location.
+
+```{r}
+dc_wac <- grab_lodes(state = c("dc"), year = 2019, lodes_type = "wac", job_type = "JT00", 
+           segment = "S000", state_part = "aux", agg_geo = "tract") %>% filter(state=="DC")
+
+dc_rac <- grab_lodes(state = c("dc"), year = 2019, lodes_type = "rac", job_type = "JT00", 
+           segment = "S000", state_part = "aux", agg_geo = "tract") %>% filter(state=="DC")
+
+head(dc_wac)
+```
+
+How many people work in DC?
+
+```{r}
+sum(dc_wac$C000)
+sum(dc_rac$C000)
+```
+
+Note the difference between the two sums --- # or workers vs # of workers who live in that area.
+
+## Get some data from tidycensus using census tracts
+
+
+Load the census key and get variables:
+```{r}
+census_api_key("4c7e5b613afdf7d2fd6d80005f53282c9a7c1bae")
+
+#what variables
+v20 = load_variables(2019,"acs5",cache=TRUE)
+# median_family_income="	B06011_001" 
+# all "B00001_001"	
+#black "B02009_001"
+```
+
+```{r}
+df_census=get_acs(geography = "tract",
+                  variables=c(
+                              "total_pop"="B01003_001",
+                              "worker_living"="B08301_001"),
+                  state="DC",geometry=TRUE,year=2019) 
+```
+
+
+```{r}
+df_cens=df_census %>% rename(val=estimate) %>%  
+  pivot_wider(names_from = "variable",
+              values_from = c("val","moe")) %>%
+  clean_names()
+
+
+tmap_mode("view")
+tm_shape(df_cens) +tm_polygons("val_total_pop",alpha=.5)
+```
+
+### An interesting anomoly
+
+Note that the two datasets give different answers for number of workers living in the area.
+
+Partly 
+```{r}
+sum(df_cens$val_worker_living)
+sum(dc_rac$C000)
+```
+
+This difference may be due to differences in accounting (as some people are not counted in the LODES data).
+
+But ... we will ignore that discrency for now.
+
+
+### Merge census and lodes data
+
+By joining wac data to census data, we now have a dataframe will all the data AND the geometry by tract.
+
+```{r}
+df_c=df_cens %>% left_join(dc_wac,by=c("geoid"="w_tract"))
+```
+
+
+##  Some viz
+
+I build here some vizualizations that I found interesting.  The first looks at where men work vs where women work.
+
+```{r}
+df_c1=df_c %>% select(pop=val_total_pop, men=CS01,women=CS02) %>% #renames while selecting
+  mutate(ratio=women/men)
+
+
+df_c1%>%
+  tm_shape()+tm_polygons(c("pop","men","women"),alpha=.4)
+
+
+
+
+```
+
+And below, we simply examine the ratio between those groups.
+
+```{r}
+df_c1%>%
+  tm_shape()+tm_polygons(c("ratio"),alpha=.4)
+```
+
+A third vizualization looks at racial/ethnic differences where workers work.
+
+```{r}
+df_c %>% select(white_workers=CR01, black_workers=CR02,hispanic_workers=CT02) %>%
+  tm_shape()+tm_polygons(c("white_workers","black_workers","hispanic_workers"),alpha=.4)
+```
+
+
+## my work
+```{r}
+df_me=df_c %>% select(pop=val_total_pop, men=CS01,women=CS02, dollar1250=CE01, dollar3333=CE02, dollar3334=CE03)
+```
+```{r}
+df_me %>% 
+  tm_shape()+tm_polygons(c("dollar1250", "dollar3333", "dollar3334"),alpha=.4)
+```
+
