@@ -6,3 +6,21 @@ output: html_notebook
 ```{r}
 plot(cars)
 ```
+
+#Do "rich" neighborhoods bike-share differently than poor?
+##Game plan
+- figure out what data to use
+- define differently, rich, and poor
+- Does resident income or worker income affect bikeshare in a neighborhood more?
+- Different ways to measure income. Mean 
+    - Distributions of income as opposed to single value
+- Look at v20 dataset
+    - have some categories broken down into income brackets
+    - how many people are in each bracket 
+    - you can pull how many households, people... in block
+        - there may be breakdown of individuals, as well as households
+        - now we have essentially two histograms want to show
+            - can draw histogram for any census block
+            - can either plot histogram side by side
+            - look at histograms, see what's there. If you see other characteristics, it will give you a perspective of approach  
+- Compare visually, pull data of breakdown things then see how they are different
