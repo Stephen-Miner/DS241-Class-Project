@@ -196,7 +196,7 @@ stations = bikeshare %>% select(bikeshare_start_station = start_station_name,
   group_by(bikeshare_start_station) %>%
   summarise(blng = mean(start_lng), blat = mean(start_lat)) %>%
   mutate(across(where(is.numeric), round, 3))
-metro_stations_separate = metro_stations %>% mutate(
+metro_stations_separate = metro_stations_sf %>% mutate(
   mlng = unlist(map(metro_location,1)), mlat = unlist(map(metro_location,2))) %>% 
   st_drop_geometry() %>%
   mutate(across(where(is.numeric), round, 3))
@@ -212,8 +212,7 @@ final_mile2 = new %>% mutate(start_to_end = haversine(slng, slat, elng, elat)) %
 
 Visualize these results.
 ```{r}
-tm_basemap(c(StreetMap = "OpenStreetMap")) + tm_shape(final_mile2) +
-  tm_lines(lwd="count", scale = 5) +
+tm_shape(final_mile2) + tm_lines(lwd="count", scale = 5) +
   tm_layout(title = "Metro Stations and Bikeshare Stations Within 500 ft of Each Other")
 ```
 
