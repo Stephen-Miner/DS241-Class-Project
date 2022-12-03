@@ -24,8 +24,10 @@ bikeshare = read_csv(here("data_raw", "202209-capitalbikeshare-tripdata.zip")) %
     end_station_name == "11th & V st NW" ~ "11th & V St NW",
     TRUE ~ end_station_name
   ))
-metro_stations = read_csv(here("data_raw", "Metro_Stations_in_DC.csv")) %>%
+metro_stations = read_csv(here("data_raw", "dc_metro_stations.csv")) %>%
   clean_names()
+metro_stations_sf = geojson_sf(here("data_raw", "dc_metro_stations.geojson")) %>%
+  clean_names() %>% select(close_station = name, metro_location = geometry)
 ```
 
 NOTE: the following several code chunks are copied directly from FinalMileOriginal.Rmd.
@@ -91,9 +93,6 @@ Make all of the data frames that we'll use for analysis.
 final_mile1_grouped = final_mile1 %>% group_by(close_station) %>% 
   summarise(count = n(), avg_distance_to_bikeshare = mean(distance), 
             avg_ride_distance = mean(start_to_end))
-metro_stations_sf = metro_stations = 
-  geojson_sf(here("data_raw", "dc_metro_stations.geojson")) %>%
-  clean_names() %>% select(close_station = name, metro_location = geometry)
 final_mile1_geo = left_join(final_mile1_grouped, metro_stations_sf, by="close_station")
 final_mile1_geo = st_as_sf(x = final_mile1_geo, crs = st_crs(metro_stations_sf))
 ```
