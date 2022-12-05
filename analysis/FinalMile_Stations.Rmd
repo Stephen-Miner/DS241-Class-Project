@@ -166,7 +166,7 @@ New direction - spatial visualization (map)
 ```{r}
 tmap_mode("view")
 tm_basemap(c(StreetMap = "OpenStreetMap")) + tm_shape(final_mile1_geo) +
-  tm_dots()
+  tm_dots(size = "count", alpha = .25)
 ```
 
 Code from https://gis.stackexchange.com/questions/419232/create-sf-points-and-then-lines-from-4-columns-in-a-data-frame-while-staying-in to make a line geometry in a dataframe in sf given 4 columns representing (x1,y1)->(x2,y2)
