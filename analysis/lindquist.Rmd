@@ -1,0 +1,23 @@
+---
+title: "Class Project"
+author: "Alex Lindquist"
+date: "2022-11-28"
+output: html_notebook
+---
+
+##Loading Packages
+```{r}
+library(lehdr)
+library(tidyverse)
+library(here)
+library(janitor)
+```
+
+```{r}
+dc_od <- grab_lodes(state = "dc", year = 2019, lodes_type = "od", job_type = "JT01", 
+           segment = "S000", state_part = "main", agg_geo = "tract")
+```
+``` {r}
+dc_wac <- grab_lodes(state = "dc", year = 2019, lodes_type = "wac", job_type = "JT01", 
+           segment = "S000", state_part = "main", agg_geo = "tract")
+```
