@@ -216,4 +216,6 @@ tm_shape(final_mile2) + tm_lines(lwd="count", scale = 5) +
   tm_layout(title = "Metro Stations and Bikeshare Stations Within 500 ft of Each Other")
 ```
 
-
+TODO from here:
+- Include more descriptive analysis in this file
+- Write some of the dataframes in this file to csv in data/
