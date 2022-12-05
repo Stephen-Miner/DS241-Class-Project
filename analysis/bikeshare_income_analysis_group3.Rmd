@@ -4,8 +4,46 @@ output: html_notebook
 ---
 
 ```{r}
-plot(cars)
+library(lehdr)
+library(dplyr)
+library(knitr)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
+library(sf)
+library(tmap)
+library(tidycensus)
 ```
+
+
+```{r}
+census_api_key("260b47c83abf4017c26b5022527d1558744b41cf", overwrite = TRUE)
+v20 = load_variables(2018,"acs5")
+
+```
+
+```{r}
+tmap_mode("view")
+
+df_census=get_acs(geography = "tract",
+                  variables=c("median_inc"="B06011_001"),
+                  state="DC",geometry=TRUE,year=2018) 
+df_cens=df_census %>% select(-moe) %>% spread(variable,estimate) 
+
+tm_shape(df_cens) +tm_polygons("median_inc",alpha=.5)
+```
+
+B19013_001
+
+income in census
+less than  $20,000
+$20,000 to $34,999
+$35,000 to $49,999
+$50,000 to $74,999
+$75,000 to $99,999
+$100,000 to $149,999
+$150,000 or more
 
 #Do "rich" neighborhoods bike-share differently than poor?
 ##Game plan
