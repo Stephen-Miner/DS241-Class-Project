@@ -34,10 +34,6 @@ dc_rac <- grab_lodes(state = "dc", year = 2019, lodes_type = "rac",
 dc_wac <- grab_lodes(state = "dc", year = 2019, lodes_type = "wac", 
                      job_type = "JT01", segment = "S000", agg_geo = "tract")
 ```
-```{r}
-filename = ""
-```
-
 
 ```{r}
 station_status <- get_station_status("cabi") %>% 
@@ -59,6 +55,3 @@ while(i < 60) {
   Sys.sleep(60)
 }
 ```
-
-
-
