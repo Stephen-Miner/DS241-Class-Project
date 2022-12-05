@@ -219,3 +219,26 @@ tm_shape(final_mile2) + tm_lines(lwd="count", scale = 5) +
 TODO from here:
 - Include more descriptive analysis in this file
 - Write some of the dataframes in this file to csv in data/
+
+## Output data
+
+Write some of our dataframes to csv for potential future use by others. 
+```{r}
+final_mile1 %>% rename("close_metro_station" = "close_station",
+                                     "dist_metro_to_bikeshare" = "distance",
+                                     "bike_ride_dist" = "start_to_end") %>%
+  write_csv(file = here("data", "final_mile_rides.csv"), append = FALSE)
+final_mile1_grouped %>% 
+  rename("close_metro_station" = "close_station",
+         "num_rides" = "count") %>% 
+  write_csv(file = here("data", "final_mile_metro.csv"), append = FALSE)
+final_mile1_geo %>% rename("close_metro_station" = "close_station",
+                                                  "num_rides" = "count") %>%
+  st_write(here("data", "final_mile_metro.geojson"), append = FALSE)
+final_mile2 %>% select(-mlat, -mlng, -blat, -blng) %>% 
+  rename("close_metro_station" = "close_station",
+         "num_rides" = "count",
+         "metro_to_bikeshare" = "geometry") %>%
+  st_write(here("data", "close_metro_bikeshare_stations.geojson"), append = FALSE)
+```
+
