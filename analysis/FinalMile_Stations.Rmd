@@ -116,6 +116,8 @@ final_mile1_grouped %>% ggplot(aes(x = reorder(close_station, -count))) +
   scale_x_discrete(label = function(x) stringr::str_trunc(x, 20))
 ```
 
+As someone who doesn't know the DC area very well, I don't have that many observations here - I think the spatial viz down below where it shows these counts on the map is more useful.
+
 Visualization: simple histogram for 
 1) average distance from metro station to bikeshare station 
 2) average distance ridden on the subsequent bike ride
@@ -161,13 +163,17 @@ final_mile1_grouped %>% ggplot(aes(x = reorder(close_station,-avg_ride_distance)
   scale_x_discrete(label = function(x) stringr::str_trunc(x, 20))
 ```
 
-New direction - spatial visualization (map)
+## Spatial Visualizations
+
+This viz shows the same information as the one above titled "Most Popular DC Metro Stations for 'Final Mile' Bikeshare Rides", but on a map instead of a simple bar chart.
 
 ```{r}
 tmap_mode("view")
 tm_basemap(c(StreetMap = "OpenStreetMap")) + tm_shape(final_mile1_geo) +
   tm_dots(size = "count", alpha = .25)
 ```
+
+It makes sense that the metro stations around the more populated working area of DC have more bikeshare rides near them. Interesting to note, though, that each individual metro station still has more close bikeshare rides despite the fact that there are more of them in a smaller area than the ones towards the outskirts.
 
 Code from https://gis.stackexchange.com/questions/419232/create-sf-points-and-then-lines-from-4-columns-in-a-data-frame-while-staying-in to make a line geometry in a dataframe in sf given 4 columns representing (x1,y1)->(x2,y2)
 ```{r}
@@ -216,9 +222,7 @@ tm_shape(final_mile2) + tm_lines(lwd="count", scale = 5) +
   tm_layout(title = "Metro Stations and Bikeshare Stations Within 500 ft of Each Other")
 ```
 
-TODO from here:
-- Include more descriptive analysis in this file
-- Write some of the dataframes in this file to csv in data/
+I think the main difference between what we can see with this map versus the other one is not only where the nearby bikeshare stations are, but also if there are multiple (e.g., Dupont Circle, Foggy Bottom). Columbia Heights is actually a really interesting example of this, where there are two nearby bikeshare stations but one gets used a good deal more than the other.
 
 ## Output data
 
