@@ -15,6 +15,9 @@ library(tidyverse)
 library(janitor)
 library(lubridate)
 library(here)
+library(sf)
+library(tmap)
+library(tidycensus)
 #library(devtools)
 ```
 

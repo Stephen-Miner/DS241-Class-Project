@@ -1,0 +1,46 @@
+DS241 Project
+Liam Durkin
+12/5/2022
+
+```{r}
+library(lehdr)
+library(dplyr)
+library(knitr)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
+library(sf)
+library(tmap)
+library(tidycensus)
+```
+
+
+```{r}
+census_api_key("260b47c83abf4017c26b5022527d1558744b41cf", overwrite = TRUE)
+v20 = load_variables(2018,"acs5")
+
+```
+
+```{r}
+tmap_mode("view")
+
+df_cencus=get_acs(geography = "tract",
+                  variables=c("median_inc"="B06011_001"),
+                              #"pop"="B01001_001",
+                              #"pop_black"="B02009_001",
+                              #"internet_access"="B99281_001"),
+                  state="DC",geometry=TRUE,year=2018) 
+df_cens=df_cencus %>% select(-moe) %>% spread(variable,estimate) 
+
+tm_shape(df_cens) +tm_polygons("median_inc",alpha=.5)
+```
+
+```{r}
+bikeshare <- read.csv("bikeshare_data.csv") %>% clean_names()
+
+bikeshare %>% ggplot(mapping = aes(start_lng, start_lat)) + geom_point()
+```
+
+
+
