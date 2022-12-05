@@ -127,13 +127,14 @@ workers_and_rides[is.na(workers_and_rides)] = 0
 
 ```{r}
 workers_and_rides %>% select(total_workers, ride_count = count) %>%
-  tm_shape() + tm_polygons(c("total_workers", "ride_count"), alpha = 0.4)
+  tm_shape() + tm_polygons(c("total_workers", "ride_count"), alpha = 0.4) + tmap_mode("view")
+
 ```
 
 ```{r}
 df_ratio = workers_and_rides %>% #renames while selecting
   mutate(ratio=count/total_workers)
   df_ratio%>%
-  tm_shape()+tm_polygons(c("ratio"),alpha=.4)
+  tm_shape()+tm_polygons(c("ratio"),alpha=.4) + tmap_mode("view")
 ```
 
