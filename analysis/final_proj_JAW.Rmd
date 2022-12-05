@@ -50,11 +50,41 @@ df_census=get_acs(geography = "tract",
                               "worker_living"="B08301_001"),
                   state="DC",geometry=TRUE,year=2019) 
 ```
+```{r}
+df_cens=df_census %>% rename(val=estimate) %>%  
+  pivot_wider(names_from = "variable",
+              values_from = c("val","moe")) %>%
+  clean_names()
+
+
+# tmap_mode("view")
+# tm_shape(df_cens) +tm_polygons("val_total_pop",alpha=.5)
+```
 
 ## Load bike data
 ```{r}
 bike_data <- read_csv("202209-capitalbikeshare-tripdata.csv") %>% clean_names()
 ```
+```{r}
+bike_data_sf <- bike_data %>%
+  mutate_at(vars(start_lat, start_lng), as.numeric) %>%
+  st_as_sf(
+    coords = c("start_lat", "start_lng"), 
+    agr = "constant",
+    crs = "4326"
+  ) %>%
+  sample_n(1000)
+
+st_crs(bike_data_sf) <- 4326
+```
+
+
+```{r}
+df_c=df_cens %>% left_join(bike_data,by="geometry")
+```
+
+
+
 ```{r}
 bike_data_sf <- bike_data %>%
   mutate_at(vars(start_lat, start_lng), as.numeric) %>%
