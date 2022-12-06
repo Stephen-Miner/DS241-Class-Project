@@ -1781,50 +1781,22 @@ at detailed demographic data</p>
 <h2>Packages</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShrbml0cilcbmxpYnJhcnkodGlkeXZlcnNlKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShrbml0cilcbmxpYnJhcnkodGlkeXZlcnNlKVxubGlicmFyeShqYW5pdG9yKVxubGlicmFyeShsdWJyaWRhdGUpICMgYmVjYXVzZSB3ZSB3aWxsIHByb2JhYmx5IHNlZSBzb21lIGRhdGVzXG5saWJyYXJ5KGhlcmUpICMgYSBwYWNrYWdlIEkgaGF2ZW4ndCB0YXVnaHQgeW91IGFib3V0IGJlZm9yZSB0aGF0IGRvZXNuJ3QgZG8gbXVjaCwgYnV0IC4uLi5cbmxpYnJhcnkoc2YpICMgd29ya2luZyB3aXRoIHNpbXBsZSBmZWF0dXJlcyAtIGdlb3NwYXRpYWxcbmxpYnJhcnkodG1hcClcbmxpYnJhcnkodGlkeWNlbnN1cylcbmxpYnJhcnkobGVoZHIpXG5saWJyYXJ5KHJuYXR1cmFsZWFydGgpXG5saWJyYXJ5KFdESSlcbmxpYnJhcnkodGlncmlzKVxubGlicmFyeShyZ2RhbClcbmxpYnJhcnkoc3ApXG5gYGAifQ== -->
 <pre class="r"><code>library(knitr)
-library(tidyverse)</code></pre>
+library(tidyverse)
+library(janitor)
+library(lubridate) # because we will probably see some dates
+library(here) # a package I haven&#39;t taught you about before that doesn&#39;t do much, but ....
+library(sf) # working with simple features - geospatial
+library(tmap)
+library(tidycensus)
+library(lehdr)
+library(rnaturalearth)
+library(WDI)
+library(tigris)
+library(rgdal)
+library(sp)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUmVnaXN0ZXJlZCBTMyBtZXRob2RzIG92ZXJ3cml0dGVuIGJ5ICdkYnBseXInOlxuICBtZXRob2QgICAgICAgICBmcm9tXG4gIHByaW50LnRibF9sYXp5ICAgICBcbiAgcHJpbnQudGJsX3NxbCAgICAgIFxu4pSA4pSAIEF0dGFjaGluZyBwYWNrYWdlcyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlIDEuMy4yIOKUgOKUgOKclCBnZ3Bsb3QyIDMuMy42ICAgICAg4pyUIHB1cnJyICAgMC4zLjUgXG7inJQgdGliYmxlICAzLjEuOCAgICAgIOKclCBkcGx5ciAgIDEuMC4xMFxu4pyUIHRpZHlyICAgMS4yLjEgICAgICDinJQgc3RyaW5nciAxLjQuMSBcbuKclCByZWFkciAgIDIuMS4zICAgICAg4pyUIGZvcmNhdHMgMC41LjIg4pSA4pSAIENvbmZsaWN0cyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlX2NvbmZsaWN0cygpIOKUgOKUgFxu4pyWIGRwbHlyOjpmaWx0ZXIoKSBtYXNrcyBzdGF0czo6ZmlsdGVyKClcbuKcliBkcGx5cjo6bGFnKCkgICAgbWFza3Mgc3RhdHM6OmxhZygpXG4ifQ== -->
-<pre><code>Registered S3 methods overwritten by &#39;dbplyr&#39;:
-  method         from
-  print.tbl_lazy     
-  print.tbl_sql      
-── Attaching packages ───────────────────────────────────────────────────── tidyverse 1.3.2 ──✔ ggplot2 3.3.6      ✔ purrr   0.3.5 
-✔ tibble  3.1.8      ✔ dplyr   1.0.10
-✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-✔ readr   2.1.3      ✔ forcats 0.5.2 ── Conflicts ──────────────────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShqYW5pdG9yKVxuYGBgIn0= -->
-<pre class="r"><code>library(janitor)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYamFuaXRvcuKAmVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6c3RhdHPigJk6XG5cbiAgICBjaGlzcS50ZXN0LCBmaXNoZXIudGVzdFxuIn0= -->
-<pre><code>
-Attaching package: ‘janitor’
-
-The following objects are masked from ‘package:stats’:
-
-    chisq.test, fisher.test</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShsdWJyaWRhdGUpICMgYmVjYXVzZSB3ZSB3aWxsIHByb2JhYmx5IHNlZSBzb21lIGRhdGVzXG5gYGAifQ== -->
-<pre class="r"><code>library(lubridate) # because we will probably see some dates</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYbHVicmlkYXRl4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0cyBhcmUgbWFza2VkIGZyb20g4oCYcGFja2FnZTpiYXNl4oCZOlxuXG4gICAgZGF0ZSwgaW50ZXJzZWN0LCBzZXRkaWZmLCB1bmlvblxuIn0= -->
-<pre><code>
-Attaching package: ‘lubridate’
-
-The following objects are masked from ‘package:base’:
-
-    date, intersect, setdiff, union</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShoZXJlKSAjIGEgcGFja2FnZSBJIGhhdmVuJ3QgdGF1Z2h0IHlvdSBhYm91dCBiZWZvcmUgdGhhdCBkb2Vzbid0IGRvIG11Y2gsIGJ1dCAuLi4uXG5gYGAifQ== -->
-<pre class="r"><code>library(here) # a package I haven&#39;t taught you about before that doesn&#39;t do much, but ....</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiaGVyZSgpIHN0YXJ0cyBhdCAvVXNlcnMvam9ld2hpdGUvRGVza3RvcC9SLVN0dWRpby9kczI0MS9EUzI0MS1DbGFzcy1Qcm9qZWN0XG4ifQ== -->
-<pre><code>here() starts at /Users/joewhite/Desktop/R-Studio/ds241/DS241-Class-Project</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1832,10 +1804,25 @@ The following objects are masked from ‘package:base’:
 <h2>read spacial data</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmVpZ2g9c3RfcmVhZChoZXJlKFwiRENfSGVhbHRoX1BsYW5uaW5nX05laWdoYm9yaG9vZHNfam9leS5nZW9qc29uXCIpKSAlPiUgY2xlYW5fbmFtZXMoKVxuY2xhc3MobmVpZ2gpXG5gYGAifQ== -->
-<pre class="r"><code>neigh=st_read(here(&quot;DC_Health_Planning_Neighborhoods_joey.geojson&quot;)) %&gt;% clean_names()
-class(neigh)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmVpZ2g9c3RfcmVhZChoZXJlKFwiRENfSGVhbHRoX1BsYW5uaW5nX05laWdoYm9yaG9vZHNfam9leS5nZW9qc29uXCIpKSAlPiUgY2xlYW5fbmFtZXMoKVxuYGBgIn0= -->
+<pre class="r"><code>neigh=st_read(here(&quot;DC_Health_Planning_Neighborhoods_joey.geojson&quot;)) %&gt;% clean_names()</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUmVhZGluZyBsYXllciBgRENfSGVhbHRoX1BsYW5uaW5nX05laWdoYm9yaG9vZHMnIGZyb20gZGF0YSBzb3VyY2UgXG4gIGAvVXNlcnMvc2FyYWhrb2hscy9EZXNrdG9wL0NvbGxlZ2UgQ2xhc3Nlcy9JbnRybyB0byBEYXRhIFNjaWVuY2Uvd29yay9EQ19IZWFsdGhfUGxhbm5pbmdfTmVpZ2hib3Job29kc19qb2V5Lmdlb2pzb24nIFxuICB1c2luZyBkcml2ZXIgYEdlb0pTT04nXG5TaW1wbGUgZmVhdHVyZSBjb2xsZWN0aW9uIHdpdGggNTEgZmVhdHVyZXMgYW5kIDggZmllbGRzXG5HZW9tZXRyeSB0eXBlOiBQT0xZR09OXG5EaW1lbnNpb246ICAgICBYWVxuQm91bmRpbmcgYm94OiAgeG1pbjogLTc3LjExOTc2IHltaW46IDM4Ljc5MTY1IHhtYXg6IC03Ni45MDk0IHltYXg6IDM4Ljk5NTU2XG5HZW9kZXRpYyBDUlM6ICBXR1MgODRcbiJ9 -->
+<pre><code>Reading layer `DC_Health_Planning_Neighborhoods&#39; from data source 
+  `/Users/sarahkohls/Desktop/College Classes/Intro to Data Science/work/DC_Health_Planning_Neighborhoods_joey.geojson&#39; 
+  using driver `GeoJSON&#39;
+Simple feature collection with 51 features and 8 fields
+Geometry type: POLYGON
+Dimension:     XY
+Bounding box:  xmin: -77.11976 ymin: 38.79165 xmax: -76.9094 ymax: 38.99556
+Geodetic CRS:  WGS 84</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2xhc3MobmVpZ2gpXG5gYGAifQ== -->
+<pre class="r"><code>class(neigh)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiWzFdIFwic2ZcIiAgICAgICAgIFwiZGF0YS5mcmFtZVwiXG4ifQ== -->
+<pre><code>[1] &quot;sf&quot;         &quot;data.frame&quot;</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1843,10 +1830,14 @@ class(neigh)</code></pre>
 <h2>loading census data</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2Vuc3VzX2FwaV9rZXkoXCJkNDQzOTVlMmZhMTAxZjgyMjYwZmFlNmI4NDU2NzZkNzFmMDE3YjcwXCIpXG5cbiN3aGF0IHZhcmlhYmxlc1xudjIwID0gbG9hZF92YXJpYWJsZXMoMjAxOCxcImFjczVcIilcbiMgbWVkaWFuX2ZhbWlseV9pbmNvbWU9XCJcdEIwNjAxMV8wMDFcIiBcbiMgYWxsIFwiQjAwMDAxXzAwMVwiXHRcbiNibGFjayBcIkIwMjAwOV8wMDFcIlxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGZfY2VuY3VzPWdldF9hY3MoZ2VvZ3JhcGh5ID0gXCJ0cmFjdFwiLFxuICAgICAgICAgICAgICAgICAgdmFyaWFibGVzPWMoXCJtZWRpYW5faW5jXCI9XCJCMDYwMTFfMDAxXCIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInBvcFwiPVwiQjAxMDAxXzAwMVwiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJwb3BfYmxhY2tcIj1cIkIwMjAwOV8wMDFcIiksXG4gICAgICAgICAgICAgICAgICBzdGF0ZT1cIkRDXCIsZ2VvbWV0cnk9VFJVRSx5ZWFyPTIwMTgpIFxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGZfY2Vucz1kZl9jZW5jdXMgJT4lIHNlbGVjdCgtbW9lKSAlPiUgc3ByZWFkKHZhcmlhYmxlLGVzdGltYXRlKVxuZGZfY2Vuc19hZGo9ZGZfY2VucyAlPiUgc3RfdHJhbnNmb3JtKDQzMjYpXG4jLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5kZl9qPXN0X2pvaW4oZGZfY2Vuc19hZGosbmVpZ2gsbGFyZ2VzdD1UUlVFKVxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGYxPWRmX2ogJT4lIHNlbGVjdChtZWRpYW5faW5jLHBvcCxwb3BfYmxhY2ssb2JqZWN0aWQpICU+JVxuICBncm91cF9ieShvYmplY3RpZCkgJT4lXG4gIHN1bW1hcmlzZShwb3Bfbj1zdW0ocG9wKSxcbiAgICAgICAgICAgIHBvcF9ibGFja19uPXN1bShwb3BfYmxhY2spLCBcbiAgICAgICAgICAgIGFkal9tZWRpYW5faW5jb21lPXN1bShwb3AqbWVkaWFuX2luYykvcG9wX24pIFxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGYyPWxlZnRfam9pbihuZWlnaDIsZGYxICU+JSBzdF9zZXRfZ2VvbWV0cnkoTlVMTCkpXG5gYGAifQ== -->
-<pre class="r"><code>census_api_key(&quot;d44395e2fa101f82260fae6b845676d71f017b70&quot;)
-
-#what variables
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2Vuc3VzX2FwaV9rZXkoXCJkNDQzOTVlMmZhMTAxZjgyMjYwZmFlNmI4NDU2NzZkNzFmMDE3YjcwXCIpXG5gYGAifQ== -->
+<pre class="r"><code>census_api_key(&quot;d44395e2fa101f82260fae6b845676d71f017b70&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiVG8gaW5zdGFsbCB5b3VyIEFQSSBrZXkgZm9yIHVzZSBpbiBmdXR1cmUgc2Vzc2lvbnMsIHJ1biB0aGlzIGZ1bmN0aW9uIHdpdGggYGluc3RhbGwgPSBUUlVFYC5cbiJ9 -->
+<pre><code>To install your API key for use in future sessions, run this function with `install = TRUE`.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI3doYXQgdmFyaWFibGVzXG52MjAgPSBsb2FkX3ZhcmlhYmxlcygyMDE4LFwiYWNzNVwiKVxuIyBtZWRpYW5fZmFtaWx5X2luY29tZT1cIlx0QjA2MDExXzAwMVwiIFxuIyBhbGwgXCJCMDAwMDFfMDAxXCJcdFxuI2JsYWNrIFwiQjAyMDA5XzAwMVwiXG4jLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5kZl9jZW5jdXM9Z2V0X2FjcyhnZW9ncmFwaHkgPSBcInRyYWN0XCIsXG4gICAgICAgICAgICAgICAgICB2YXJpYWJsZXM9YyhcIm1lZGlhbl9pbmNcIj1cIkIwNjAxMV8wMDFcIixcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwicG9wXCI9XCJCMDEwMDFfMDAxXCIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInBvcF9ibGFja1wiPVwiQjAyMDA5XzAwMVwiKSxcbiAgICAgICAgICAgICAgICAgIHN0YXRlPVwiRENcIixnZW9tZXRyeT1UUlVFLHllYXI9MjAxOCkgXG5gYGAifQ== -->
+<pre class="r"><code>#what variables
 v20 = load_variables(2018,&quot;acs5&quot;)
 # median_family_income=&quot;    B06011_001&quot; 
 # all &quot;B00001_001&quot;  
@@ -1856,13 +1847,25 @@ df_cencus=get_acs(geography = &quot;tract&quot;,
                   variables=c(&quot;median_inc&quot;=&quot;B06011_001&quot;,
                               &quot;pop&quot;=&quot;B01001_001&quot;,
                               &quot;pop_black&quot;=&quot;B02009_001&quot;),
-                  state=&quot;DC&quot;,geometry=TRUE,year=2018) 
-#---------------------------------------------------------------
+                  state=&quot;DC&quot;,geometry=TRUE,year=2018) </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiR2V0dGluZyBkYXRhIGZyb20gdGhlIDIwMTQtMjAxOCA1LXllYXIgQUNTXG5Eb3dubG9hZGluZyBmZWF0dXJlIGdlb21ldHJ5IGZyb20gdGhlIENlbnN1cyB3ZWJzaXRlLiAgVG8gY2FjaGUgc2hhcGVmaWxlcyBmb3IgdXNlIGluIGZ1dHVyZSBzZXNzaW9ucywgc2V0IGBvcHRpb25zKHRpZ3Jpc191c2VfY2FjaGUgPSBUUlVFKWAuXG5Vc2luZyBGSVBTIGNvZGUgJzExJyBmb3Igc3RhdGUgJ0RDJ1xuIn0= -->
+<pre><code>Getting data from the 2014-2018 5-year ACS
+Downloading feature geometry from the Census website.  To cache shapefiles for use in future sessions, set `options(tigris_use_cache = TRUE)`.
+Using FIPS code &#39;11&#39; for state &#39;DC&#39;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGZfY2Vucz1kZl9jZW5jdXMgJT4lIHNlbGVjdCgtbW9lKSAlPiUgc3ByZWFkKHZhcmlhYmxlLGVzdGltYXRlKVxuZGZfY2Vuc19hZGo9ZGZfY2VucyAlPiUgc3RfdHJhbnNmb3JtKDQzMjYpXG4jLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5kZl9qPXN0X2pvaW4oZGZfY2Vuc19hZGosbmVpZ2gsbGFyZ2VzdD1UUlVFKVxuYGBgIn0= -->
+<pre class="r"><code>#---------------------------------------------------------------
 df_cens=df_cencus %&gt;% select(-moe) %&gt;% spread(variable,estimate)
 df_cens_adj=df_cens %&gt;% st_transform(4326)
 #---------------------------------------------------------------
-df_j=st_join(df_cens_adj,neigh,largest=TRUE)
-#---------------------------------------------------------------
+df_j=st_join(df_cens_adj,neigh,largest=TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogYXR0cmlidXRlIHZhcmlhYmxlcyBhcmUgYXNzdW1lZCB0byBiZSBzcGF0aWFsbHkgY29uc3RhbnQgdGhyb3VnaG91dCBhbGwgZ2VvbWV0cmllc1xuIn0= -->
+<pre><code>Warning: attribute variables are assumed to be spatially constant throughout all geometries</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGYxPWRmX2ogJT4lIHNlbGVjdChtZWRpYW5faW5jLHBvcCxwb3BfYmxhY2ssb2JqZWN0aWQpICU+JVxuICBncm91cF9ieShvYmplY3RpZCkgJT4lXG4gIHN1bW1hcmlzZShwb3Bfbj1zdW0ocG9wKSxcbiAgICAgICAgICAgIHBvcF9ibGFja19uPXN1bShwb3BfYmxhY2spLCBcbiAgICAgICAgICAgIGFkal9tZWRpYW5faW5jb21lPXN1bShwb3AqbWVkaWFuX2luYykvcG9wX24pIFxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGYyPWxlZnRfam9pbihuZWlnaDIsZGYxICU+JSBzdF9zZXRfZ2VvbWV0cnkoTlVMTCkpXG5gYGAifQ== -->
+<pre class="r"><code>#---------------------------------------------------------------
 df1=df_j %&gt;% select(median_inc,pop,pop_black,objectid) %&gt;%
   group_by(objectid) %&gt;%
   summarise(pop_n=sum(pop),
@@ -1871,6 +1874,9 @@ df1=df_j %&gt;% select(median_inc,pop,pop_black,objectid) %&gt;%
 #---------------------------------------------------------------
 df2=left_join(neigh2,df1 %&gt;% st_set_geometry(NULL))</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiSm9pbmluZywgYnkgPSBcIm9iamVjdGlkXCJcbiJ9 -->
+<pre><code>Joining, by = &quot;objectid&quot;</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
@@ -1878,9 +1884,20 @@ df2=left_join(neigh2,df1 %&gt;% st_set_geometry(NULL))</code></pre>
 <h2>Bike Data</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhIDwtIHJlYWRfY3N2KFwiMjAyMjA5LWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2XCIpICU+JSBjbGVhbl9uYW1lcygpXG4jLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5iaWtlX2RhdGFfc2YgPC0gYmlrZV9kYXRhICU+JVxuICBtdXRhdGVfYXQodmFycyhzdGFydF9sYXQsIHN0YXJ0X2xuZyksIGFzLm51bWVyaWMpICU+JVxuICBzdF9hc19zZihcbiAgICBjb29yZHMgPSBjKFwic3RhcnRfbGF0XCIsIFwic3RhcnRfbG5nXCIpLCBcbiAgICBhZ3IgPSBcImNvbnN0YW50XCIsXG4gICAgY3JzID0gXCI0MzI2XCJcbiAgKSAlPiVcbiAgc2FtcGxlX24oMTAwMClcbiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS1cbnN0X2NycyhiaWtlX2RhdGFfc2YpIDwtIDQzMjZcbmBgYCJ9 -->
-<pre class="r"><code>bike_data &lt;- read_csv(&quot;202209-capitalbikeshare-tripdata.csv&quot;) %&gt;% clean_names()
-#---------------------------------------------------------------
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhIDwtIHJlYWRfY3N2KFwiMjAyMjA5LWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2XCIpICU+JSBjbGVhbl9uYW1lcygpXG5gYGAifQ== -->
+<pre class="r"><code>bike_data &lt;- read_csv(&quot;202209-capitalbikeshare-tripdata.csv&quot;) %&gt;% clean_names()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogMzg2MDg1IENvbHVtbnM6IDEz4pSA4pSAIENvbHVtbiBzcGVjaWZpY2F0aW9uIOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgOKUgFxuRGVsaW1pdGVyOiBcIixcIlxuY2hyICAoNSk6IHJpZGVfaWQsIHJpZGVhYmxlX3R5cGUsIHN0YXJ0X3N0YXRpb25fbmFtZSwgZW5kX3N0YXRpb25fbmFtZSwgbWVtYmVyX2Nhc3VhbFxuZGJsICAoNik6IHN0YXJ0X3N0YXRpb25faWQsIGVuZF9zdGF0aW9uX2lkLCBzdGFydF9sYXQsIHN0YXJ0X2xuZywgZW5kX2xhdCwgZW5kX2xuZ1xuZHR0bSAoMik6IHN0YXJ0ZWRfYXQsIGVuZGVkX2F0XG7ihLkgVXNlIGBzcGVjKClgIHRvIHJldHJpZXZlIHRoZSBmdWxsIGNvbHVtbiBzcGVjaWZpY2F0aW9uIGZvciB0aGlzIGRhdGEuXG7ihLkgU3BlY2lmeSB0aGUgY29sdW1uIHR5cGVzIG9yIHNldCBgc2hvd19jb2xfdHlwZXMgPSBGQUxTRWAgdG8gcXVpZXQgdGhpcyBtZXNzYWdlLlxuIn0= -->
+<pre><code>Rows: 386085 Columns: 13── Column specification ───────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr  (5): ride_id, rideable_type, start_station_name, end_station_name, member_casual
+dbl  (6): start_station_id, end_station_id, start_lat, start_lng, end_lat, end_lng
+dttm (2): started_at, ended_at
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuYmlrZV9kYXRhX3NmIDwtIGJpa2VfZGF0YSAlPiVcbiAgbXV0YXRlX2F0KHZhcnMoc3RhcnRfbGF0LCBzdGFydF9sbmcpLCBhcy5udW1lcmljKSAlPiVcbiAgc3RfYXNfc2YoXG4gICAgY29vcmRzID0gYyhcInN0YXJ0X2xhdFwiLCBcInN0YXJ0X2xuZ1wiKSwgXG4gICAgYWdyID0gXCJjb25zdGFudFwiLFxuICAgIGNycyA9IFwiNDMyNlwiXG4gICkgJT4lXG4gIHNhbXBsZV9uKDEwMDApXG4jLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5zdF9jcnMoYmlrZV9kYXRhX3NmKSA8LSA0MzI2XG5gYGAifQ== -->
+<pre class="r"><code>#---------------------------------------------------------------
 bike_data_sf &lt;- bike_data %&gt;%
   mutate_at(vars(start_lat, start_lng), as.numeric) %&gt;%
   st_as_sf(
