@@ -6,41 +6,20 @@ output: html_notebook
 ---
 
 ```{r}
-library(lehdr)
 library(dplyr)
-library(stringr)
-
 library(tidyverse)
 library(here)
 library(janitor)
-library(maps)
-library(lubridate)
 library(gbfs)
-
 library(taskscheduleR) #might be useful for running code every minute
-```
-
-```{r}
-dc_od <- grab_lodes(state = "dc", year = 2019, lodes_type = "od", job_type = "JT01", 
-           segment = "S000", state_part = "main", agg_geo = "tract")
-```
-
-```{r}
-dc_rac <- grab_lodes(state = "dc", year = 2019, lodes_type = "rac", 
-                     job_type = "JT01", segment = "S000", agg_geo = "tract")
-```
-
-```{r}
-dc_wac <- grab_lodes(state = "dc", year = 2019, lodes_type = "wac", 
-                     job_type = "JT01", segment = "S000", agg_geo = "tract")
 ```
 
 ```{r}
 station_status <- get_station_status("cabi") %>% 
   select(station_id, num_docks_available, num_docks_disabled, 
          num_bikes_available, num_ebikes_available, num_bikes_disabled) %>%
-  mutate(total_bikes_available = 
-  num_bikes_available + num_docks_available + num_ebikes_available)
+  mutate(total_bikes_available = num_bikes_available + num_docks_available  
+         + num_ebikes_available - num_docks_disabled - num_bikes_disabled )
 ```
 
 ```{r}

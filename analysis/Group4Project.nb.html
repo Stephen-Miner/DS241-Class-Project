@@ -1785,37 +1785,14 @@ library(taskscheduleR) #might be useful for running code every minute</code></pr
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGNfb2QgPC0gZ3JhYl9sb2RlcyhzdGF0ZSA9IFwiZGNcIiwgeWVhciA9IDIwMTksIGxvZGVzX3R5cGUgPSBcIm9kXCIsIGpvYl90eXBlID0gXCJKVDAxXCIsIFxuICAgICAgICAgICBzZWdtZW50ID0gXCJTMDAwXCIsIHN0YXRlX3BhcnQgPSBcIm1haW5cIiwgYWdnX2dlbyA9IFwidHJhY3RcIilcbmBgYCJ9 -->
-<pre class="r"><code>dc_od &lt;- grab_lodes(state = &quot;dc&quot;, year = 2019, lodes_type = &quot;od&quot;, job_type = &quot;JT01&quot;, 
-           segment = &quot;S000&quot;, state_part = &quot;main&quot;, agg_geo = &quot;tract&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGNfcmFjIDwtIGdyYWJfbG9kZXMoc3RhdGUgPSBcImRjXCIsIHllYXIgPSAyMDE5LCBsb2Rlc190eXBlID0gXCJyYWNcIiwgXG4gICAgICAgICAgICAgICAgICAgICBqb2JfdHlwZSA9IFwiSlQwMVwiLCBzZWdtZW50ID0gXCJTMDAwXCIsIGFnZ19nZW8gPSBcInRyYWN0XCIpXG5gYGAifQ== -->
 <pre class="r"><code>dc_rac &lt;- grab_lodes(state = &quot;dc&quot;, year = 2019, lodes_type = &quot;rac&quot;, 
                      job_type = &quot;JT01&quot;, segment = &quot;S000&quot;, agg_geo = &quot;tract&quot;)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGNfd2FjIDwtIGdyYWJfbG9kZXMoc3RhdGUgPSBcImRjXCIsIHllYXIgPSAyMDE5LCBsb2Rlc190eXBlID0gXCJ3YWNcIiwgXG4gICAgICAgICAgICAgICAgICAgICBqb2JfdHlwZSA9IFwiSlQwMVwiLCBzZWdtZW50ID0gXCJTMDAwXCIsIGFnZ19nZW8gPSBcInRyYWN0XCIpXG5gYGAifQ== -->
-<pre class="r"><code>dc_wac &lt;- grab_lodes(state = &quot;dc&quot;, year = 2019, lodes_type = &quot;wac&quot;, 
-                     job_type = &quot;JT01&quot;, segment = &quot;S000&quot;, agg_geo = &quot;tract&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RhdGlvbl9zdGF0dXMgPC0gZ2V0X3N0YXRpb25fc3RhdHVzKFwiY2FiaVwiKSAlPiUgXG4gIHNlbGVjdChzdGF0aW9uX2lkLCBudW1fZG9ja3NfYXZhaWxhYmxlLCBudW1fZG9ja3NfZGlzYWJsZWQsIFxuICAgICAgICAgbnVtX2Jpa2VzX2F2YWlsYWJsZSwgbnVtX2ViaWtlc19hdmFpbGFibGUsIG51bV9iaWtlc19kaXNhYmxlZCkgJT4lXG4gIG11dGF0ZSh0b3RhbF9iaWtlc19hdmFpbGFibGUgPSBcbiAgbnVtX2Jpa2VzX2F2YWlsYWJsZSArIG51bV9kb2Nrc19hdmFpbGFibGUgKyBudW1fZWJpa2VzX2F2YWlsYWJsZSlcbmBgYCJ9 -->
-<pre class="r"><code>station_status &lt;- get_station_status(&quot;cabi&quot;) %&gt;% 
-  select(station_id, num_docks_available, num_docks_disabled, 
-         num_bikes_available, num_ebikes_available, num_bikes_disabled) %&gt;%
-  mutate(total_bikes_available = 
-  num_bikes_available + num_docks_available + num_ebikes_available)</code></pre>
-<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRG93bmxvYWRpbmcgaHR0cHM6Ly9sZWhkLmNlcy5jZW5zdXMuZ292L2RhdGEvbG9kZXMvTE9ERVM3L2RjL3JhYy9kY19yYWNfUzAwMF9KVDAxXzIwMTkuY3N2Lmd6IHRvIEM6XFxVc2Vyc1xcdnZleGlcXEFwcERhdGFcXExvY2FsL2xlaGRyL2xlaGRyL0NhY2hlL2RjX3JhY19TMDAwX0pUMDFfMjAxOS5jc3YuZ3ogbm93Li4uXG5SZW1vdmVkIEM6XFxVc2Vyc1xcdnZleGlcXEFwcERhdGFcXExvY2FsL2xlaGRyL2xlaGRyL0NhY2hlL2RjX3JhY19TMDAwX0pUMDFfMjAxOS5jc3YuZ3ouXG4ifQ== -->
+<pre><code>Downloading https://lehd.ces.census.gov/data/lodes/LODES7/dc/rac/dc_rac_S000_JT01_2019.csv.gz to C:\Users\vvexi\AppData\Local/lehdr/lehdr/Cache/dc_rac_S000_JT01_2019.csv.gz now...
+Removed C:\Users\vvexi\AppData\Local/lehdr/lehdr/Cache/dc_rac_S000_JT01_2019.csv.gz.</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -1834,7 +1811,7 @@ while(i &lt; 60) {
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNsYXNzIFByb2plY3QiDQpkYXRlOiAgIjIwMjItMTEtMjkiDQphdXRob3I6ICJOYXRlIFNtdWxsZW4sIEFsZXggTGluZHF1aXN0LCBXeW50ZXIgTWFsb25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQpsaWJyYXJ5KGxlaGRyKQ0KbGlicmFyeShkcGx5cikNCmxpYnJhcnkoc3RyaW5ncikNCg0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KGhlcmUpDQpsaWJyYXJ5KGphbml0b3IpDQpsaWJyYXJ5KG1hcHMpDQpsaWJyYXJ5KGx1YnJpZGF0ZSkNCmxpYnJhcnkoZ2JmcykNCg0KbGlicmFyeSh0YXNrc2NoZWR1bGVSKSAjbWlnaHQgYmUgdXNlZnVsIGZvciBydW5uaW5nIGNvZGUgZXZlcnkgbWludXRlDQpgYGANCg0KYGBge3J9DQpkY19vZCA8LSBncmFiX2xvZGVzKHN0YXRlID0gImRjIiwgeWVhciA9IDIwMTksIGxvZGVzX3R5cGUgPSAib2QiLCBqb2JfdHlwZSA9ICJKVDAxIiwgDQogICAgICAgICAgIHNlZ21lbnQgPSAiUzAwMCIsIHN0YXRlX3BhcnQgPSAibWFpbiIsIGFnZ19nZW8gPSAidHJhY3QiKQ0KYGBgDQoNCmBgYHtyfQ0KZGNfcmFjIDwtIGdyYWJfbG9kZXMoc3RhdGUgPSAiZGMiLCB5ZWFyID0gMjAxOSwgbG9kZXNfdHlwZSA9ICJyYWMiLCANCiAgICAgICAgICAgICAgICAgICAgIGpvYl90eXBlID0gIkpUMDEiLCBzZWdtZW50ID0gIlMwMDAiLCBhZ2dfZ2VvID0gInRyYWN0IikNCmBgYA0KDQpgYGB7cn0NCmRjX3dhYyA8LSBncmFiX2xvZGVzKHN0YXRlID0gImRjIiwgeWVhciA9IDIwMTksIGxvZGVzX3R5cGUgPSAid2FjIiwgDQogICAgICAgICAgICAgICAgICAgICBqb2JfdHlwZSA9ICJKVDAxIiwgc2VnbWVudCA9ICJTMDAwIiwgYWdnX2dlbyA9ICJ0cmFjdCIpDQpgYGANCg0KYGBge3J9DQpzdGF0aW9uX3N0YXR1cyA8LSBnZXRfc3RhdGlvbl9zdGF0dXMoImNhYmkiKSAlPiUgDQogIHNlbGVjdChzdGF0aW9uX2lkLCBudW1fZG9ja3NfYXZhaWxhYmxlLCBudW1fZG9ja3NfZGlzYWJsZWQsIA0KICAgICAgICAgbnVtX2Jpa2VzX2F2YWlsYWJsZSwgbnVtX2ViaWtlc19hdmFpbGFibGUsIG51bV9iaWtlc19kaXNhYmxlZCkgJT4lDQogIG11dGF0ZSh0b3RhbF9iaWtlc19hdmFpbGFibGUgPSANCiAgbnVtX2Jpa2VzX2F2YWlsYWJsZSArIG51bV9kb2Nrc19hdmFpbGFibGUgKyBudW1fZWJpa2VzX2F2YWlsYWJsZSkNCmBgYA0KDQpgYGB7cn0NCiNjb2RlIHRoYXQgcnVucyBldmVyeSBtaW51dGUgZm9yIGFuIGhvdXINCiNwcm9ibGVtIHdpdGggdGhpcyBjb2RlIGlzIHRoYXQgaXQgZG9lc24ndCBhY2NvdW50IGZvciB0aGUgdGltZSBpdCB0YWtlcyB0byBkbw0KI1RoZSBjYWxjdWxhdGlvbg0KaSA9IDANCndoaWxlKGkgPCA2MCkgew0KICBwcmludChwYXN0ZSgiaXRzIGJlZW4iLCBpLCAibWludXRlcyBzaW5jZSB0aGlzIHN0YXJ0ZWQsIGdpdmUgb3IgdGFrZSBhIGJpdCIpKQ0KICBpID0gaSArIDENCiAgDQogIFN5cy5zbGVlcCg2MCkNCn0NCmBgYA0K</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNsYXNzIFByb2plY3QiDQpkYXRlOiAgIjIwMjItMTEtMjkiDQphdXRob3I6ICJOYXRlIFNtdWxsZW4sIEFsZXggTGluZHF1aXN0LCBXeW50ZXIgTWFsb25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KGhlcmUpDQpsaWJyYXJ5KGphbml0b3IpDQpsaWJyYXJ5KGdiZnMpDQpsaWJyYXJ5KHRhc2tzY2hlZHVsZVIpICNtaWdodCBiZSB1c2VmdWwgZm9yIHJ1bm5pbmcgY29kZSBldmVyeSBtaW51dGUNCmBgYA0KDQpgYGB7cn0NCnN0YXRpb25fc3RhdHVzIDwtIGdldF9zdGF0aW9uX3N0YXR1cygiY2FiaSIpICU+JSANCiAgc2VsZWN0KHN0YXRpb25faWQsIG51bV9kb2Nrc19hdmFpbGFibGUsIG51bV9kb2Nrc19kaXNhYmxlZCwgDQogICAgICAgICBudW1fYmlrZXNfYXZhaWxhYmxlLCBudW1fZWJpa2VzX2F2YWlsYWJsZSwgbnVtX2Jpa2VzX2Rpc2FibGVkKSAlPiUNCiAgbXV0YXRlKHRvdGFsX2Jpa2VzX2F2YWlsYWJsZSA9IG51bV9iaWtlc19hdmFpbGFibGUgKyBudW1fZG9ja3NfYXZhaWxhYmxlICANCiAgICAgICAgICsgbnVtX2ViaWtlc19hdmFpbGFibGUgLSBudW1fZG9ja3NfZGlzYWJsZWQgLSBudW1fYmlrZXNfZGlzYWJsZWQgKQ0KYGBgDQoNCmBgYHtyfQ0KI2NvZGUgdGhhdCBydW5zIGV2ZXJ5IG1pbnV0ZSBmb3IgYW4gaG91cg0KI3Byb2JsZW0gd2l0aCB0aGlzIGNvZGUgaXMgdGhhdCBpdCBkb2Vzbid0IGFjY291bnQgZm9yIHRoZSB0aW1lIGl0IHRha2VzIHRvIGRvDQojVGhlIGNhbGN1bGF0aW9uDQppID0gMA0Kd2hpbGUoaSA8IDYwKSB7DQogIHByaW50KHBhc3RlKCJpdHMgYmVlbiIsIGksICJtaW51dGVzIHNpbmNlIHRoaXMgc3RhcnRlZCwgZ2l2ZSBvciB0YWtlIGEgYml0IikpDQogIGkgPSBpICsgMQ0KICANCiAgU3lzLnNsZWVwKDYwKQ0KfQ0KYGBgDQo=</div>
 
 
 
