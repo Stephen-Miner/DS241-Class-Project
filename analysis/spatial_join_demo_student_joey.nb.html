@@ -9,10 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Joseph White" />
+<meta name="author" content="Coach Skufca" />
 
+<meta name="date" content="2022-11-09" />
 
-<title>Member versus Casual</title>
+<title>Replacement Class - Cleaning up and Spatial Joins</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1756,160 +1757,365 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">Member versus Casual</h1>
-<h4 class="author">Joseph White</h4>
-<h4 class="date">2022-12-2</h4>
+<h1 class="title toc-ignore">Replacement Class - Cleaning up and Spatial
+Joins</h1>
+<h4 class="author">Coach Skufca</h4>
+<h4 class="date">2022-11-09</h4>
 
 </div>
 
 
 <!-- rnb-text-begin -->
-<p>This notebooks will try to use the <code>lehdr</code> package to get
-at detailed demographic data</p>
-<div id="install-lehdr" class="section level2">
-<h2>Install lehdr</h2>
-<p>Run this code only once.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2RldnRvb2xzOjppbnN0YWxsX2dpdGh1YihcImphbWdyZWVuL2xlaGRyXCIpXG5gYGAifQ== -->
-<pre class="r"><code>#devtools::install_github(&quot;jamgreen/lehdr&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
+<p>This notebooks will help me talk through a bit of material regarding
+<em>spatial data</em>, with some introduction to
+<code>spatial joins</code>.</p>
+<p>Key topics for today:</p>
+<ul>
+<li>Using <code>sf</code> package</li>
+<li>Using <code>tmap</code> package</li>
+<li>Using <code>tidycensus</code> package</li>
+<li>Reminder on joins (focus: left join)</li>
+<li>Our Spatial Data
+<ul>
+<li>Neighborhoods</li>
+<li>Joining with non-spatial data</li>
+<li>Census data</li>
+<li>Joining with spatial data</li>
+</ul></li>
+<li>ignore html in git (if time)</li>
+</ul>
 <div id="packages" class="section level2">
 <h2>Packages</h2>
+<p>Standards:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShrbml0cilcbmxpYnJhcnkodGlkeXZlcnNlKVxuYGBgIn0= -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShrbml0cilcbmxpYnJhcnkodGlkeXZlcnNlKVxubGlicmFyeShqYW5pdG9yKVxubGlicmFyeShsdWJyaWRhdGUpICMgYmVjYXVzZSB3ZSB3aWxsIHByb2JhYmx5IHNlZSBzb21lIGRhdGVzXG5saWJyYXJ5KGhlcmUpICMgYSBwYWNrYWdlIEkgaGF2ZW4ndCB0YXVnaHQgeW91IGFib3V0IGJlZm9yZSB0aGF0IGRvZXNuJ3QgZG8gbXVjaCwgYnV0IC4uLi5cbmxpYnJhcnkocm5hdHVyYWxlYXJ0aClcbmxpYnJhcnkoV0RJKVxubGlicmFyeSh0aWdyaXMpXG5saWJyYXJ5KHJnZGFsKVxubGlicmFyeShzcClcbmBgYCJ9 -->
 <pre class="r"><code>library(knitr)
-library(tidyverse)</code></pre>
+library(tidyverse)
+library(janitor)
+library(lubridate) # because we will probably see some dates
+library(here) # a package I haven&#39;t taught you about before that doesn&#39;t do much, but ....
+library(rnaturalearth)
+library(WDI)
+library(tigris)
+library(rgdal)
+library(sp)</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiUmVnaXN0ZXJlZCBTMyBtZXRob2RzIG92ZXJ3cml0dGVuIGJ5ICdkYnBseXInOlxuICBtZXRob2QgICAgICAgICBmcm9tXG4gIHByaW50LnRibF9sYXp5ICAgICBcbiAgcHJpbnQudGJsX3NxbCAgICAgIFxu4pSA4pSAIEF0dGFjaGluZyBwYWNrYWdlcyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlIDEuMy4yIOKUgOKUgOKclCBnZ3Bsb3QyIDMuMy42ICAgICAg4pyUIHB1cnJyICAgMC4zLjUgXG7inJQgdGliYmxlICAzLjEuOCAgICAgIOKclCBkcGx5ciAgIDEuMC4xMFxu4pyUIHRpZHlyICAgMS4yLjEgICAgICDinJQgc3RyaW5nciAxLjQuMSBcbuKclCByZWFkciAgIDIuMS4zICAgICAg4pyUIGZvcmNhdHMgMC41LjIg4pSA4pSAIENvbmZsaWN0cyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlX2NvbmZsaWN0cygpIOKUgOKUgFxu4pyWIGRwbHlyOjpmaWx0ZXIoKSBtYXNrcyBzdGF0czo6ZmlsdGVyKClcbuKcliBkcGx5cjo6bGFnKCkgICAgbWFza3Mgc3RhdHM6OmxhZygpXG4ifQ== -->
-<pre><code>Registered S3 methods overwritten by &#39;dbplyr&#39;:
-  method         from
-  print.tbl_lazy     
-  print.tbl_sql      
-── Attaching packages ───────────────────────────────────────────────────── tidyverse 1.3.2 ──✔ ggplot2 3.3.6      ✔ purrr   0.3.5 
-✔ tibble  3.1.8      ✔ dplyr   1.0.10
-✔ tidyr   1.2.1      ✔ stringr 1.4.1 
-✔ readr   2.1.3      ✔ forcats 0.5.2 ── Conflicts ──────────────────────────────────────────────────────── tidyverse_conflicts() ──
-✖ dplyr::filter() masks stats::filter()
-✖ dplyr::lag()    masks stats::lag()</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShqYW5pdG9yKVxuYGBgIn0= -->
-<pre class="r"><code>library(janitor)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYamFuaXRvcuKAmVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6c3RhdHPigJk6XG5cbiAgICBjaGlzcS50ZXN0LCBmaXNoZXIudGVzdFxuIn0= -->
-<pre><code>
-Attaching package: ‘janitor’
-
-The following objects are masked from ‘package:stats’:
-
-    chisq.test, fisher.test</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShsdWJyaWRhdGUpICMgYmVjYXVzZSB3ZSB3aWxsIHByb2JhYmx5IHNlZSBzb21lIGRhdGVzXG5gYGAifQ== -->
-<pre class="r"><code>library(lubridate) # because we will probably see some dates</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYbHVicmlkYXRl4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0cyBhcmUgbWFza2VkIGZyb20g4oCYcGFja2FnZTpiYXNl4oCZOlxuXG4gICAgZGF0ZSwgaW50ZXJzZWN0LCBzZXRkaWZmLCB1bmlvblxuIn0= -->
-<pre><code>
-Attaching package: ‘lubridate’
-
-The following objects are masked from ‘package:base’:
-
-    date, intersect, setdiff, union</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShoZXJlKSAjIGEgcGFja2FnZSBJIGhhdmVuJ3QgdGF1Z2h0IHlvdSBhYm91dCBiZWZvcmUgdGhhdCBkb2Vzbid0IGRvIG11Y2gsIGJ1dCAuLi4uXG5gYGAifQ== -->
-<pre class="r"><code>library(here) # a package I haven&#39;t taught you about before that doesn&#39;t do much, but ....</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiaGVyZSgpIHN0YXJ0cyBhdCAvVXNlcnMvam9ld2hpdGUvRGVza3RvcC9SLVN0dWRpby9kczI0MS9EUzI0MS1DbGFzcy1Qcm9qZWN0XG4ifQ== -->
-<pre><code>here() starts at /Users/joewhite/Desktop/R-Studio/ds241/DS241-Class-Project</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-</div>
-<div id="read-spacial-data" class="section level2">
-<h2>read spacial data</h2>
+<p>Some additional packages focused on today’s work:</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmVpZ2g9c3RfcmVhZChoZXJlKFwiRENfSGVhbHRoX1BsYW5uaW5nX05laWdoYm9yaG9vZHNfam9leS5nZW9qc29uXCIpKSAlPiUgY2xlYW5fbmFtZXMoKVxuY2xhc3MobmVpZ2gpXG5gYGAifQ== -->
-<pre class="r"><code>neigh=st_read(here(&quot;DC_Health_Planning_Neighborhoods_joey.geojson&quot;)) %&gt;% clean_names()
-class(neigh)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShzZikgIyB3b3JraW5nIHdpdGggc2ltcGxlIGZlYXR1cmVzIC0gZ2Vvc3BhdGlhbFxubGlicmFyeSh0bWFwKVxubGlicmFyeSh0aWR5Y2Vuc3VzKVxuXG5gYGAifQ== -->
+<pre class="r"><code>library(sf) # working with simple features - geospatial
+library(tmap)
+library(tidycensus)
+</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="loading-census-data" class="section level2">
-<h2>loading census data</h2>
+<div id="informational-resources" class="section level2">
+<h2>Informational resources</h2>
+<ul>
+<li>An overall resource on mapping in R: <a href="https://bookdown.org/nicohahn/making_maps_with_r5/docs/introduction.html" class="uri">https://bookdown.org/nicohahn/making_maps_with_r5/docs/introduction.html</a></li>
+<li>A starting point to learn about <code>sf</code>: <a href="https://r-spatial.github.io/sf/articles/" class="uri">https://r-spatial.github.io/sf/articles/</a></li>
+<li>Getting started with <code>tmap</code>: <a href="https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html" class="uri">https://cran.r-project.org/web/packages/tmap/vignettes/tmap-getstarted.html</a></li>
+<li>The <code>tidycensus</code> package: <a href="https://walker-data.com/tidycensus/index.html" class="uri">https://walker-data.com/tidycensus/index.html</a></li>
+<li>The book on <code>tidycensus</code> : <a href="https://walker-data.com/census-r/index.html" class="uri">https://walker-data.com/census-r/index.html</a></li>
+</ul>
+</div>
+<div id="using-the-neighborhood-geospatial-data-using-data" class="section level2">
+<h2>Using the Neighborhood Geospatial Data (using /data)</h2>
+<p>Our first data source comes from opendata.dc</p>
+<p><a href="https://opendata.dc.gov/datasets/DCGIS" class="uri">https://opendata.dc.gov/datasets/DCGIS</a>::dc-health-planning-neighborhoods/about</p>
+<p>I will use the GeoJSON file. (Newer, not necessarily better, but … a
+single file. Not smaller, but … this one is not big.)</p>
+<p>Data is easily readable</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2Vuc3VzX2FwaV9rZXkoXCJkNDQzOTVlMmZhMTAxZjgyMjYwZmFlNmI4NDU2NzZkNzFmMDE3YjcwXCIpXG5cbiN3aGF0IHZhcmlhYmxlc1xudjIwID0gbG9hZF92YXJpYWJsZXMoMjAxOCxcImFjczVcIilcbiMgbWVkaWFuX2ZhbWlseV9pbmNvbWU9XCJcdEIwNjAxMV8wMDFcIiBcbiMgYWxsIFwiQjAwMDAxXzAwMVwiXHRcbiNibGFjayBcIkIwMjAwOV8wMDFcIlxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGZfY2VuY3VzPWdldF9hY3MoZ2VvZ3JhcGh5ID0gXCJ0cmFjdFwiLFxuICAgICAgICAgICAgICAgICAgdmFyaWFibGVzPWMoXCJtZWRpYW5faW5jXCI9XCJCMDYwMTFfMDAxXCIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInBvcFwiPVwiQjAxMDAxXzAwMVwiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJwb3BfYmxhY2tcIj1cIkIwMjAwOV8wMDFcIiksXG4gICAgICAgICAgICAgICAgICBzdGF0ZT1cIkRDXCIsZ2VvbWV0cnk9VFJVRSx5ZWFyPTIwMTgpIFxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGZfY2Vucz1kZl9jZW5jdXMgJT4lIHNlbGVjdCgtbW9lKSAlPiUgc3ByZWFkKHZhcmlhYmxlLGVzdGltYXRlKVxuZGZfY2Vuc19hZGo9ZGZfY2VucyAlPiUgc3RfdHJhbnNmb3JtKDQzMjYpXG4jLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5kZl9qPXN0X2pvaW4oZGZfY2Vuc19hZGosbmVpZ2gsbGFyZ2VzdD1UUlVFKVxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGYxPWRmX2ogJT4lIHNlbGVjdChtZWRpYW5faW5jLHBvcCxwb3BfYmxhY2ssb2JqZWN0aWQpICU+JVxuICBncm91cF9ieShvYmplY3RpZCkgJT4lXG4gIHN1bW1hcmlzZShwb3Bfbj1zdW0ocG9wKSxcbiAgICAgICAgICAgIHBvcF9ibGFja19uPXN1bShwb3BfYmxhY2spLCBcbiAgICAgICAgICAgIGFkal9tZWRpYW5faW5jb21lPXN1bShwb3AqbWVkaWFuX2luYykvcG9wX24pIFxuIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLVxuZGYyPWxlZnRfam9pbihuZWlnaDIsZGYxICU+JSBzdF9zZXRfZ2VvbWV0cnkoTlVMTCkpXG5gYGAifQ== -->
-<pre class="r"><code>census_api_key(&quot;d44395e2fa101f82260fae6b845676d71f017b70&quot;)
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmVpZ2g9c3RfcmVhZChoZXJlKFwiRENfSGVhbHRoX1BsYW5uaW5nX05laWdoYm9yaG9vZHNfam9leS5nZW9qc29uXCIpKSAlPiUgY2xlYW5fbmFtZXMoKVxuYGBgIn0= -->
+<pre class="r"><code>neigh=st_read(here(&quot;DC_Health_Planning_Neighborhoods_joey.geojson&quot;)) %&gt;% clean_names()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiRXJyb3I6IENhbm5vdCBvcGVuIFwiL1VzZXJzL2pvZXdoaXRlL0Rlc2t0b3AvUi1TdHVkaW8vZHMyNDEvRFMyNDEtQ2xhc3MtUHJvamVjdC9EQ19IZWFsdGhfUGxhbm5pbmdfTmVpZ2hib3Job29kc19qb2V5Lmdlb2pzb25cIjsgVGhlIGZpbGUgZG9lc24ndCBzZWVtIHRvIGV4aXN0LlxuIn0= -->
+<pre><code>Error: Cannot open &quot;/Users/joewhite/Desktop/R-Studio/ds241/DS241-Class-Project/DC_Health_Planning_Neighborhoods_joey.geojson&quot;; The file doesn&#39;t seem to exist.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxucGxvdChuZWlnaClcbmBgYCJ9 -->
+<pre class="r"><code>plot(neigh)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="reminder---joins" class="section level2">
+<h2>Reminder - Joins</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGYxPXRpYmJsZShmcnVpdD1jKFwiYXBwbGVcIixcImJhbmFuYVwiLFwiY2hlcnJ5XCIpLGNvc3Q9YygxLjUsMS4yLDIuMjUpKVxuZGYyPXRpYmJsZShmcnVpdD1jKFwiYXBwbGVcIixcImFwcGxlXCIsXCJjaGVycnlcIixcImxlbW9uXCIpLFxuICAgICAgICAgICBkZXNlcnQ9YyhcInBpZVwiLFwiY29iYmxlclwiLFwiY29iYmxlclwiLFwiY2hlZXNlY2FrZVwiKSxcbiAgICAgICAgICAgY2FsPWMoNDAwLDQzMCw1MDAsNTUwKSlcbmRmMVxuYGBgIn0= -->
+<pre class="r"><code>df1=tibble(fruit=c(&quot;apple&quot;,&quot;banana&quot;,&quot;cherry&quot;),cost=c(1.5,1.2,2.25))
+df2=tibble(fruit=c(&quot;apple&quot;,&quot;apple&quot;,&quot;cherry&quot;,&quot;lemon&quot;),
+           desert=c(&quot;pie&quot;,&quot;cobbler&quot;,&quot;cobbler&quot;,&quot;cheesecake&quot;),
+           cal=c(400,430,500,550))
+df1</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGYyXG5gYGAifQ== -->
+<pre class="r"><code>df2</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGVmdF9qb2luKGRmMSxkZjIsYnk9XCJmcnVpdFwiKVxuYGBgIn0= -->
+<pre class="r"><code>left_join(df1,df2,by=&quot;fruit&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="investigating-joining-spatial-and-non-spatial-data" class="section level2">
+<h2>Investigating joining spatial and non-spatial data</h2>
+<p>Covid case information is available from opendatadc:</p>
+<p><a href="https://opendata.dc.gov/datasets/DCGIS" class="uri">https://opendata.dc.gov/datasets/DCGIS</a>::dc-covid-19-total-positive-cases-by-neighborhood/about</p>
+<p>Read cases information:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfYz1yZWFkX2NzdihoZXJlKFwiRENfQ09WSUQtMTlfVG90YWxfUG9zaXRpdmVfQ2FzZXNfYnlfTmVpZ2hib3Job29kX2pvZXkuY3N2XCIpKSAlPiUgY2xlYW5fbmFtZXMoKSBcblxuZGZfY2FzZXM9ZGZfYyAlPiVcbiAgZmlsdGVyKGFzX2RhdGUoZGF0ZV9yZXBvcnRlZCkgPT0gXCIyMDIyLTAyLTIyXCIpICU+JSBcbiAgc2VwYXJhdGUobmVpZ2hib3Job29kLGludG89YyhcImNvZGVcIixcIm5hbWVcIiksc2VwID0gXCI6XCIpICU+JVxuICBtdXRhdGUoY29kZT1jYXNlX3doZW4oXG4gICAgY29kZT09XCJOMzVcIiB+XCJOMFwiLFxuICAgIFRSVUUgfiBjb2RlXG4gICkpICU+JVxuICBzZWxlY3QoLW9iamVjdGlkLC1kYXRlX3JlcG9ydGVkKVxuXG5cbmBgYCJ9 -->
+<pre class="r"><code>df_c=read_csv(here(&quot;DC_COVID-19_Total_Positive_Cases_by_Neighborhood_joey.csv&quot;)) %&gt;% clean_names() 
+
+df_cases=df_c %&gt;%
+  filter(as_date(date_reported) == &quot;2022-02-22&quot;) %&gt;% 
+  separate(neighborhood,into=c(&quot;code&quot;,&quot;name&quot;),sep = &quot;:&quot;) %&gt;%
+  mutate(code=case_when(
+    code==&quot;N35&quot; ~&quot;N0&quot;,
+    TRUE ~ code
+  )) %&gt;%
+  select(-objectid,-date_reported)
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="regular-joining-of-dataframes" class="section level2">
+<h2>Regular joining (of dataframes)</h2>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubmVpZ2gyPWxlZnRfam9pbihuZWlnaCxkZl9jYXNlcyxieT1jKFwiY29kZVwiKSkgXG5cbnRtYXBfbW9kZShcInZpZXdcIilcblxudG1fc2hhcGUobmVpZ2gyKSArdG1fcG9seWdvbnMoXCJ0b3RhbF9wb3NpdGl2ZXNcIixhbHBoYT0uNSlcbmBgYCJ9 -->
+<pre class="r"><code>neigh2=left_join(neigh,df_cases,by=c(&quot;code&quot;)) 
+
+tmap_mode(&quot;view&quot;)
+
+tm_shape(neigh2) +tm_polygons(&quot;total_positives&quot;,alpha=.5)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="joining-with-other-spatial-data" class="section level2">
+<h2>Joining with other spatial data</h2>
+<p>Let’s get some data using <code>tidycensus</code>. Need an API key <a href="https://api.census.gov/data/key_signup.html" class="uri">https://api.census.gov/data/key_signup.html</a></p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG5cbmNlbnN1c19hcGlfa2V5KFwiZDQ0Mzk1ZTJmYTEwMWY4MjI2MGZhZTZiODQ1Njc2ZDcxZjAxN2I3MFwiKVxuXG4jd2hhdCB2YXJpYWJsZXNcbnYyMCA9IGxvYWRfdmFyaWFibGVzKDIwMTgsXCJhY3M1XCIpXG4jIG1lZGlhbl9mYW1pbHlfaW5jb21lPVwiXHRCMDYwMTFfMDAxXCIgXG4jIGFsbCBcIkIwMDAwMV8wMDFcIlx0XG4jYmxhY2sgXCJCMDIwMDlfMDAxXCJcbmBgYCJ9 -->
+<pre class="r"><code>
+
+census_api_key(&quot;d44395e2fa101f82260fae6b845676d71f017b70&quot;)
 
 #what variables
 v20 = load_variables(2018,&quot;acs5&quot;)
 # median_family_income=&quot;    B06011_001&quot; 
 # all &quot;B00001_001&quot;  
-#black &quot;B02009_001&quot;
-#---------------------------------------------------------------
-df_cencus=get_acs(geography = &quot;tract&quot;,
+#black &quot;B02009_001&quot;</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Get some data:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfY2VuY3VzPWdldF9hY3MoZ2VvZ3JhcGh5ID0gXCJ0cmFjdFwiLFxuICAgICAgICAgICAgICAgICAgdmFyaWFibGVzPWMoXCJtZWRpYW5faW5jXCI9XCJCMDYwMTFfMDAxXCIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcInBvcFwiPVwiQjAxMDAxXzAwMVwiLFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCJwb3BfYmxhY2tcIj1cIkIwMjAwOV8wMDFcIiksXG4gICAgICAgICAgICAgICAgICBzdGF0ZT1cIkRDXCIsZ2VvbWV0cnk9VFJVRSx5ZWFyPTIwMTgpIFxuYGBgIn0= -->
+<pre class="r"><code>df_cencus=get_acs(geography = &quot;tract&quot;,
                   variables=c(&quot;median_inc&quot;=&quot;B06011_001&quot;,
                               &quot;pop&quot;=&quot;B01001_001&quot;,
                               &quot;pop_black&quot;=&quot;B02009_001&quot;),
-                  state=&quot;DC&quot;,geometry=TRUE,year=2018) 
-#---------------------------------------------------------------
-df_cens=df_cencus %&gt;% select(-moe) %&gt;% spread(variable,estimate)
-df_cens_adj=df_cens %&gt;% st_transform(4326)
-#---------------------------------------------------------------
-df_j=st_join(df_cens_adj,neigh,largest=TRUE)
-#---------------------------------------------------------------
-df1=df_j %&gt;% select(median_inc,pop,pop_black,objectid) %&gt;%
+                  state=&quot;DC&quot;,geometry=TRUE,year=2018) </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuY2xhc3MoZGZfY2VuY3VzKVxucGxvdChkZl9jZW5jdXMpXG5gYGAifQ== -->
+<pre class="r"><code>class(df_cencus)
+plot(df_cencus)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>It’s in long format. Let’s make it wide.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfY2Vucz1kZl9jZW5jdXMgJT4lIHNlbGVjdCgtbW9lKSAlPiUgc3ByZWFkKHZhcmlhYmxlLGVzdGltYXRlKSBcblxudG1fc2hhcGUoZGZfY2VucykgK3RtX3BvbHlnb25zKFwibWVkaWFuX2luY1wiLGFscGhhPS41KVxuYGBgIn0= -->
+<pre class="r"><code>df_cens=df_cencus %&gt;% select(-moe) %&gt;% spread(variable,estimate) 
+
+tm_shape(df_cens) +tm_polygons(&quot;median_inc&quot;,alpha=.5)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuXG4gIHRtX3NoYXBlKG5laWdoMikgK3RtX2JvcmRlcnMoY29sPVwiYmx1ZVwiLGx3ZD01LGFscGhhPS4yKStcbiAgdG1fc2hhcGUoZGZfY2VucykgK3RtX2JvcmRlcnMoY29sPVwicmVkXCIsbHdkPTEsYWxwaGE9LjMpXG5gYGAifQ== -->
+<pre class="r"><code>
+  tm_shape(neigh2) +tm_borders(col=&quot;blue&quot;,lwd=5,alpha=.2)+
+  tm_shape(df_cens) +tm_borders(col=&quot;red&quot;,lwd=1,alpha=.3)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIzw8PDw8PDwgSEVBRFxuI2RmX2o9c3Rfam9pbihkZl9jZW5zLG5laWdoMilcbiM9PT09PT09XG4jZGZfaj1zdF9qb2luKGRmX2NlbnMsbmVpZ2gyLHByZXBhcmVkPUZBTFNFKVxuIz4+Pj4+Pj4gYWFmMDFiZTVjZjcyMTgxOWRkMmRmNjE1YWVmN2ExOTk5YmNlYzBjMlxuYGBgIn0= -->
+<pre class="r"><code>#&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+#df_j=st_join(df_cens,neigh2)
+#=======
+#df_j=st_join(df_cens,neigh2,prepared=FALSE)
+#&gt;&gt;&gt;&gt;&gt;&gt;&gt; aaf01be5cf721819dd2df615aef7a1999bcec0c2</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfY2Vuc19hZGo9ZGZfY2VucyAlPiUgc3RfdHJhbnNmb3JtKDQzMjYpXG5gYGAifQ== -->
+<pre class="r"><code>df_cens_adj=df_cens %&gt;% st_transform(4326)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfaj1zdF9qb2luKGRmX2NlbnNfYWRqLG5laWdoMixsYXJnZXN0PVRSVUUpXG5gYGAifQ== -->
+<pre class="r"><code>df_j=st_join(df_cens_adj,neigh2,largest=TRUE)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Other order?:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIzw8PDw8PDwgSEVBRFxuIyNkZl9qX3JldiA9IHN0X2pvaW4obmVpZ2gyLGRmX2NlbnNfYWRqLGxhcmdlc3Q9VFJVRSlcbiM9PT09PT09XG4jZGZfal9yZXYgPSBzdF9qb2luKG5laWdoMixkZl9jZW5zX2FkaixsYXJnZXN0PVRSVUUpXG4jPj4+Pj4+PiBhYWYwMWJlNWNmNzIxODE5ZGQyZGY2MTVhZWY3YTE5OTliY2VjMGMyXG5gYGAifQ== -->
+<pre class="r"><code>#&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+##df_j_rev = st_join(neigh2,df_cens_adj,largest=TRUE)
+#=======
+#df_j_rev = st_join(neigh2,df_cens_adj,largest=TRUE)
+#&gt;&gt;&gt;&gt;&gt;&gt;&gt; aaf01be5cf721819dd2df615aef7a1999bcec0c2</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>Since we want the geometry for the NEIGHBORHOODS, we need a to work a
+little harder:</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGYxPWRmX2ogJT4lIHNlbGVjdChtZWRpYW5faW5jLHBvcCxwb3BfYmxhY2ssb2JqZWN0aWQpICU+JVxuICBncm91cF9ieShvYmplY3RpZCkgJT4lXG4gIHN1bW1hcmlzZShwb3Bfbj1zdW0ocG9wKSxcbiAgICAgICAgICAgIHBvcF9ibGFja19uPXN1bShwb3BfYmxhY2spLCBcbiAgICAgICAgICAgIGFkal9tZWRpYW5faW5jb21lPXN1bShwb3AqbWVkaWFuX2luYykvcG9wX24pIFxuXG5wbG90KGRmMSlcbmBgYCJ9 -->
+<pre class="r"><code>df1=df_j %&gt;% select(median_inc,pop,pop_black,objectid) %&gt;%
   group_by(objectid) %&gt;%
   summarise(pop_n=sum(pop),
             pop_black_n=sum(pop_black), 
             adj_median_income=sum(pop*median_inc)/pop_n) 
-#---------------------------------------------------------------
-df2=left_join(neigh2,df1 %&gt;% st_set_geometry(NULL))</code></pre>
+
+plot(df1)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-</div>
-<div id="bike-data" class="section level2">
-<h2>Bike Data</h2>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhIDwtIHJlYWRfY3N2KFwiMjAyMjA5LWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2XCIpICU+JSBjbGVhbl9uYW1lcygpXG4jLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tXG5iaWtlX2RhdGFfc2YgPC0gYmlrZV9kYXRhICU+JVxuICBtdXRhdGVfYXQodmFycyhzdGFydF9sYXQsIHN0YXJ0X2xuZyksIGFzLm51bWVyaWMpICU+JVxuICBzdF9hc19zZihcbiAgICBjb29yZHMgPSBjKFwic3RhcnRfbGF0XCIsIFwic3RhcnRfbG5nXCIpLCBcbiAgICBhZ3IgPSBcImNvbnN0YW50XCIsXG4gICAgY3JzID0gXCI0MzI2XCJcbiAgKSAlPiVcbiAgc2FtcGxlX24oMTAwMClcbiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS1cbnN0X2NycyhiaWtlX2RhdGFfc2YpIDwtIDQzMjZcbmBgYCJ9 -->
-<pre class="r"><code>bike_data &lt;- read_csv(&quot;202209-capitalbikeshare-tripdata.csv&quot;) %&gt;% clean_names()
-#---------------------------------------------------------------
-bike_data_sf &lt;- bike_data %&gt;%
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2RmMj1sZWZ0X2pvaW4obmVpZ2gyLGRmMSlcblxuZGYyPWxlZnRfam9pbihuZWlnaDIsZGYxICU+JSBzdF9zZXRfZ2VvbWV0cnkoTlVMTCkpXG5cbmBgYCJ9 -->
+<pre class="r"><code>#df2=left_join(neigh2,df1)
+
+df2=left_join(neigh2,df1 %&gt;% st_set_geometry(NULL))
+</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGYyPWRmMiAlPiUgbXV0YXRlKGJsYWNrX3BlcmM9cG9wX2JsYWNrX24vcG9wX24sIGNvdmlkX3JhdGU9dG90YWxfcG9zaXRpdmVzL3BvcF9uKVxudG1fc2hhcGUoZGYyKSt0bV9wb2x5Z29ucyhjKFwiYWRqX21lZGlhbl9pbmNvbWVcIixcImNvdmlkX3JhdGVcIixcImJsYWNrX3BlcmNcIikpXG5gYGAifQ== -->
+<pre class="r"><code>df2=df2 %&gt;% mutate(black_perc=pop_black_n/pop_n, covid_rate=total_positives/pop_n)
+tm_shape(df2)+tm_polygons(c(&quot;adj_median_income&quot;,&quot;covid_rate&quot;,&quot;black_perc&quot;))</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGYyICU+JSBmaWx0ZXIob2JqZWN0aWQhPTMwKSAlPiUgdG1fc2hhcGUoKSt0bV9wb2x5Z29ucyhjKFwiYWRqX21lZGlhbl9pbmNvbWVcIixcImNvdmlkX3JhdGVcIixcImJsYWNrX3BlcmNcIiksYWxwaGE9LjQpXG5gYGAifQ== -->
+<pre class="r"><code>df2 %&gt;% filter(objectid!=30) %&gt;% tm_shape()+tm_polygons(c(&quot;adj_median_income&quot;,&quot;covid_rate&quot;,&quot;black_perc&quot;),alpha=.4)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p>#find where people ride bikes (bikes started in each ‘district’)</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhIDwtIHJlYWRfY3N2KFwiMjAyMjA5LWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2XCIpICU+JSBjbGVhbl9uYW1lcygpXG5gYGAifQ== -->
+<pre class="r"><code>bike_data &lt;- read_csv(&quot;202209-capitalbikeshare-tripdata.csv&quot;) %&gt;% clean_names()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhX3NmIDwtIGJpa2VfZGF0YSAlPiVcbiAgbXV0YXRlX2F0KHZhcnMoc3RhcnRfbGF0LCBzdGFydF9sbmcpLCBhcy5udW1lcmljKSAlPiVcbiAgc3RfYXNfc2YoXG4gICAgY29vcmRzID0gYyhcInN0YXJ0X2xhdFwiLCBcInN0YXJ0X2xuZ1wiKSwgXG4gICAgYWdyID0gXCJjb25zdGFudFwiLFxuICAgIGNycyA9IFwiNDMyNlwiXG4gICkgJT4lXG4gIHNhbXBsZV9uKDEwMDApXG5gYGAifQ== -->
+<pre class="r"><code>bike_data_sf &lt;- bike_data %&gt;%
   mutate_at(vars(start_lat, start_lng), as.numeric) %&gt;%
   st_as_sf(
     coords = c(&quot;start_lat&quot;, &quot;start_lng&quot;), 
     agr = &quot;constant&quot;,
     crs = &quot;4326&quot;
   ) %&gt;%
-  sample_n(1000)
-#---------------------------------------------------------------
-st_crs(bike_data_sf) &lt;- 4326</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhX3NmXzEgPC0gYmlrZV9kYXRhX3NmICU+JVxuICBzZWxlY3QoZ2VvbWV0cnkpICU+JVxuICByZW5hbWUoZ2VvbV9wb2ludHMgPSBnZW9tZXRyeSlcblxubmVpZ2hfMSA8LSBuZWlnaCAlPiVcbiAgc2VsZWN0KGdlb21ldHJ5KVxuXG5kZl9mdWxsID0gc3Rfam9pbihiaWtlX2RhdGFfc2ZfMSwgbmVpZ2hfMSwgam9pbiA9IHN0X3dpdGhpbilcbmBgYCJ9 -->
-<pre class="r"><code>bike_data_sf_1 &lt;- bike_data_sf %&gt;%
-  select(geometry) %&gt;%
-  rename(geom_points = geometry)
-
-neigh_1 &lt;- neigh %&gt;%
-  select(geometry)
-
-df_full = st_join(bike_data_sf_1, neigh_1, join = st_within)</code></pre>
+  sample_n(1000)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RfY3JzKGJpa2VfZGF0YV9zZilcbnN0X2NycyhuZWlnaDIpXG5gYGAifQ== -->
+<pre class="r"><code>st_crs(bike_data_sf)
+st_crs(neigh2)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuc3RfY3JzKGJpa2VfZGF0YV9zZikgPC0gNDMyNlxuYGBgIn0= -->
+<pre class="r"><code>st_crs(bike_data_sf) &lt;- 4326</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuYmlrZV9kYXRhX3NmXzEgPC0gYmlrZV9kYXRhX3NmICU+JVxuICBzZWxlY3QoZ2VvbWV0cnkpICU+JVxuICByZW5hbWUoZ2VvbV9wb2ludHMgPSBnZW9tZXRyeSlcblxubmVpZ2gyXzEgPC0gbmVpZ2gyICU+JVxuICBzZWxlY3QoZ2VvbWV0cnkpXG5gYGAifQ== -->
+<pre class="r"><code>bike_data_sf_1 &lt;- bike_data_sf %&gt;%
+  select(geometry) %&gt;%
+  rename(geom_points = geometry)
+
+neigh2_1 &lt;- neigh2 %&gt;%
+  select(geometry)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfcGx6ID0gc3Rfam9pbihiaWtlX2RhdGFfc2ZfMSwgbmVpZ2gyXzEsIGpvaW4gPSBzdF93aXRoaW4pXG5cbiNkZl9iaWtlc19jb3VudCA8LSBjb3VudChhc190aWJibGUoZGZfcGx6KSwgKVxuYGBgIn0= -->
+<pre class="r"><code>df_plz = st_join(bike_data_sf_1, neigh2_1, join = st_within)
+
+#df_bikes_count &lt;- count(as_tibble(df_plz), )</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<p><a href="https://dw-rowlands.github.io/Job_Density_and_Commutes/Job_Density_and_Commutes.html" class="uri">https://dw-rowlands.github.io/Job_Density_and_Commutes/Job_Density_and_Commutes.html</a></p>
+<p><a href="https://walker-data.com/census-r/index.html" class="uri">https://walker-data.com/census-r/index.html</a></p>
+<p>What other interesting questions - is peak in bike data actually
+people going to work or tourist? - are casual riders in the more
+touristy areas? open data dc, tourist data, reverse geo coding to find
+location of monuments :):</p>
+<p>Question to answer: Is there a spatial patter driven associated with
+member/casual? - look on open data dc site - could be some data on
+tourist activity</p>
+<!-- rnb-text-end -->
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiTWVtYmVyIHZlcnN1cyBDYXN1YWwiCmRhdGU6ICAiMjAyMi0xMi0yIgphdXRob3I6ICJKb3NlcGggV2hpdGUiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KClRoaXMgbm90ZWJvb2tzIHdpbGwgdHJ5IHRvIHVzZSB0aGUgYGxlaGRyYCBwYWNrYWdlIHRvIGdldCBhdCBkZXRhaWxlZCBkZW1vZ3JhcGhpYyBkYXRhCgojIyBJbnN0YWxsIGxlaGRyClJ1biB0aGlzIGNvZGUgb25seSBvbmNlLgpgYGB7cn0KI2RldnRvb2xzOjppbnN0YWxsX2dpdGh1YigiamFtZ3JlZW4vbGVoZHIiKQpgYGAKCiMjIFBhY2thZ2VzCmBgYHtyfQpsaWJyYXJ5KGtuaXRyKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShqYW5pdG9yKQpsaWJyYXJ5KGx1YnJpZGF0ZSkgIyBiZWNhdXNlIHdlIHdpbGwgcHJvYmFibHkgc2VlIHNvbWUgZGF0ZXMKbGlicmFyeShoZXJlKSAjIGEgcGFja2FnZSBJIGhhdmVuJ3QgdGF1Z2h0IHlvdSBhYm91dCBiZWZvcmUgdGhhdCBkb2Vzbid0IGRvIG11Y2gsIGJ1dCAuLi4uCmxpYnJhcnkoc2YpICMgd29ya2luZyB3aXRoIHNpbXBsZSBmZWF0dXJlcyAtIGdlb3NwYXRpYWwKbGlicmFyeSh0bWFwKQpsaWJyYXJ5KHRpZHljZW5zdXMpCmxpYnJhcnkobGVoZHIpCmxpYnJhcnkocm5hdHVyYWxlYXJ0aCkKbGlicmFyeShXREkpCmxpYnJhcnkodGlncmlzKQpsaWJyYXJ5KHJnZGFsKQpsaWJyYXJ5KHNwKQpgYGAKCiMjIHJlYWQgc3BhY2lhbCBkYXRhCmBgYHtyfQpuZWlnaD1zdF9yZWFkKGhlcmUoIkRDX0hlYWx0aF9QbGFubmluZ19OZWlnaGJvcmhvb2RzX2pvZXkuZ2VvanNvbiIpKSAlPiUgY2xlYW5fbmFtZXMoKQpjbGFzcyhuZWlnaCkKYGBgCgojIyBsb2FkaW5nIGNlbnN1cyBkYXRhCmBgYHtyfQpjZW5zdXNfYXBpX2tleSgiZDQ0Mzk1ZTJmYTEwMWY4MjI2MGZhZTZiODQ1Njc2ZDcxZjAxN2I3MCIpCgojd2hhdCB2YXJpYWJsZXMKdjIwID0gbG9hZF92YXJpYWJsZXMoMjAxOCwiYWNzNSIpCiMgbWVkaWFuX2ZhbWlseV9pbmNvbWU9IglCMDYwMTFfMDAxIiAKIyBhbGwgIkIwMDAwMV8wMDEiCQojYmxhY2sgIkIwMjAwOV8wMDEiCiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KZGZfY2VuY3VzPWdldF9hY3MoZ2VvZ3JhcGh5ID0gInRyYWN0IiwKICAgICAgICAgICAgICAgICAgdmFyaWFibGVzPWMoIm1lZGlhbl9pbmMiPSJCMDYwMTFfMDAxIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgInBvcCI9IkIwMTAwMV8wMDEiLAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAicG9wX2JsYWNrIj0iQjAyMDA5XzAwMSIpLAogICAgICAgICAgICAgICAgICBzdGF0ZT0iREMiLGdlb21ldHJ5PVRSVUUseWVhcj0yMDE4KSAKIy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQpkZl9jZW5zPWRmX2NlbmN1cyAlPiUgc2VsZWN0KC1tb2UpICU+JSBzcHJlYWQodmFyaWFibGUsZXN0aW1hdGUpCmRmX2NlbnNfYWRqPWRmX2NlbnMgJT4lIHN0X3RyYW5zZm9ybSg0MzI2KQojLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tCmRmX2o9c3Rfam9pbihkZl9jZW5zX2FkaixuZWlnaCxsYXJnZXN0PVRSVUUpCiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KZGYxPWRmX2ogJT4lIHNlbGVjdChtZWRpYW5faW5jLHBvcCxwb3BfYmxhY2ssb2JqZWN0aWQpICU+JQogIGdyb3VwX2J5KG9iamVjdGlkKSAlPiUKICBzdW1tYXJpc2UocG9wX249c3VtKHBvcCksCiAgICAgICAgICAgIHBvcF9ibGFja19uPXN1bShwb3BfYmxhY2spLCAKICAgICAgICAgICAgYWRqX21lZGlhbl9pbmNvbWU9c3VtKHBvcCptZWRpYW5faW5jKS9wb3BfbikgCiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KZGYyPWxlZnRfam9pbihuZWlnaDIsZGYxICU+JSBzdF9zZXRfZ2VvbWV0cnkoTlVMTCkpCmBgYAoKIyMgQmlrZSBEYXRhCmBgYHtyfQpiaWtlX2RhdGEgPC0gcmVhZF9jc3YoIjIwMjIwOS1jYXBpdGFsYmlrZXNoYXJlLXRyaXBkYXRhLmNzdiIpICU+JSBjbGVhbl9uYW1lcygpCiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KYmlrZV9kYXRhX3NmIDwtIGJpa2VfZGF0YSAlPiUKICBtdXRhdGVfYXQodmFycyhzdGFydF9sYXQsIHN0YXJ0X2xuZyksIGFzLm51bWVyaWMpICU+JQogIHN0X2FzX3NmKAogICAgY29vcmRzID0gYygic3RhcnRfbGF0IiwgInN0YXJ0X2xuZyIpLCAKICAgIGFnciA9ICJjb25zdGFudCIsCiAgICBjcnMgPSAiNDMyNiIKICApICU+JQogIHNhbXBsZV9uKDEwMDApCiMtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0Kc3RfY3JzKGJpa2VfZGF0YV9zZikgPC0gNDMyNgpgYGAKYGBge3J9CmJpa2VfZGF0YV9zZl8xIDwtIGJpa2VfZGF0YV9zZiAlPiUKICBzZWxlY3QoZ2VvbWV0cnkpICU+JQogIHJlbmFtZShnZW9tX3BvaW50cyA9IGdlb21ldHJ5KQoKbmVpZ2hfMSA8LSBuZWlnaCAlPiUKICBzZWxlY3QoZ2VvbWV0cnkpCgpkZl9mdWxsID0gc3Rfam9pbihiaWtlX2RhdGFfc2ZfMSwgbmVpZ2hfMSwgam9pbiA9IHN0X3dpdGhpbikKYGBgCgo=</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUmVwbGFjZW1lbnQgQ2xhc3MgLSBDbGVhbmluZyB1cCBhbmQgU3BhdGlhbCBKb2lucyIKZGF0ZTogICIyMDIyLTExLTA5IgphdXRob3I6ICJDb2FjaCBTa3VmY2EiCm91dHB1dDogaHRtbF9ub3RlYm9vawotLS0KClRoaXMgbm90ZWJvb2tzIHdpbGwgaGVscCBtZSB0YWxrIHRocm91Z2ggYSBiaXQgb2YgbWF0ZXJpYWwgcmVnYXJkaW5nICpzcGF0aWFsIGRhdGEqLCAKd2l0aCBzb21lIGludHJvZHVjdGlvbiB0byBgc3BhdGlhbCBqb2luc2AuCgpLZXkgdG9waWNzIGZvciB0b2RheToKCiogVXNpbmcgYHNmYCBwYWNrYWdlCiogVXNpbmcgYHRtYXBgIHBhY2thZ2UKKiBVc2luZyBgdGlkeWNlbnN1c2AgcGFja2FnZQoqIFJlbWluZGVyIG9uIGpvaW5zIChmb2N1czogbGVmdCBqb2luKQoqIE91ciBTcGF0aWFsIERhdGEKICAgKiBOZWlnaGJvcmhvb2RzCiAgICogSm9pbmluZyB3aXRoIG5vbi1zcGF0aWFsIGRhdGEKICAgKiBDZW5zdXMgZGF0YQogICAqIEpvaW5pbmcgd2l0aCBzcGF0aWFsIGRhdGEKKiBpZ25vcmUgaHRtbCBpbiBnaXQgIChpZiB0aW1lKQoKIyMgUGFja2FnZXMKClN0YW5kYXJkczoKCmBgYHtyfQpsaWJyYXJ5KGtuaXRyKQpsaWJyYXJ5KHRpZHl2ZXJzZSkKbGlicmFyeShqYW5pdG9yKQpsaWJyYXJ5KGx1YnJpZGF0ZSkgIyBiZWNhdXNlIHdlIHdpbGwgcHJvYmFibHkgc2VlIHNvbWUgZGF0ZXMKbGlicmFyeShoZXJlKSAjIGEgcGFja2FnZSBJIGhhdmVuJ3QgdGF1Z2h0IHlvdSBhYm91dCBiZWZvcmUgdGhhdCBkb2Vzbid0IGRvIG11Y2gsIGJ1dCAuLi4uCmxpYnJhcnkocm5hdHVyYWxlYXJ0aCkKbGlicmFyeShXREkpCmxpYnJhcnkodGlncmlzKQpsaWJyYXJ5KHJnZGFsKQpsaWJyYXJ5KHNwKQpgYGAKClNvbWUgYWRkaXRpb25hbCBwYWNrYWdlcyBmb2N1c2VkIG9uIHRvZGF5J3Mgd29yazoKCmBgYHtyfQpsaWJyYXJ5KHNmKSAjIHdvcmtpbmcgd2l0aCBzaW1wbGUgZmVhdHVyZXMgLSBnZW9zcGF0aWFsCmxpYnJhcnkodG1hcCkKbGlicmFyeSh0aWR5Y2Vuc3VzKQoKYGBgCiMjIEluZm9ybWF0aW9uYWwgcmVzb3VyY2VzCgoqIEFuIG92ZXJhbGwgcmVzb3VyY2Ugb24gbWFwcGluZyBpbiBSOiBodHRwczovL2Jvb2tkb3duLm9yZy9uaWNvaGFobi9tYWtpbmdfbWFwc193aXRoX3I1L2RvY3MvaW50cm9kdWN0aW9uLmh0bWwKKiBBIHN0YXJ0aW5nIHBvaW50IHRvIGxlYXJuIGFib3V0IGBzZmA6ICBodHRwczovL3Itc3BhdGlhbC5naXRodWIuaW8vc2YvYXJ0aWNsZXMvCiogR2V0dGluZyBzdGFydGVkIHdpdGggYHRtYXBgOiBodHRwczovL2NyYW4uci1wcm9qZWN0Lm9yZy93ZWIvcGFja2FnZXMvdG1hcC92aWduZXR0ZXMvdG1hcC1nZXRzdGFydGVkLmh0bWwKKiBUaGUgYHRpZHljZW5zdXNgIHBhY2thZ2U6IGh0dHBzOi8vd2Fsa2VyLWRhdGEuY29tL3RpZHljZW5zdXMvaW5kZXguaHRtbAoqIFRoZSBib29rIG9uIGB0aWR5Y2Vuc3VzYCA6IGh0dHBzOi8vd2Fsa2VyLWRhdGEuY29tL2NlbnN1cy1yL2luZGV4Lmh0bWwKCgojIyBVc2luZyB0aGUgTmVpZ2hib3Job29kIEdlb3NwYXRpYWwgRGF0YSAodXNpbmcgL2RhdGEpCgoKT3VyIGZpcnN0IGRhdGEgc291cmNlIGNvbWVzIGZyb20gb3BlbmRhdGEuZGMKCmh0dHBzOi8vb3BlbmRhdGEuZGMuZ292L2RhdGFzZXRzL0RDR0lTOjpkYy1oZWFsdGgtcGxhbm5pbmctbmVpZ2hib3Job29kcy9hYm91dAoKCkkgd2lsbCB1c2UgdGhlIEdlb0pTT04gZmlsZS4gIChOZXdlciwgbm90IG5lY2Vzc2FyaWx5IGJldHRlciwgYnV0IC4uLiBhIHNpbmdsZSBmaWxlLiAgTm90IHNtYWxsZXIsIGJ1dCAuLi4gdGhpcyBvbmUgaXMgbm90IGJpZy4pICAKCgoKCkRhdGEgaXMgZWFzaWx5IHJlYWRhYmxlIApgYGB7cn0KbmVpZ2g9c3RfcmVhZChoZXJlKCJEQ19IZWFsdGhfUGxhbm5pbmdfTmVpZ2hib3Job29kc19qb2V5Lmdlb2pzb24iKSkgJT4lIGNsZWFuX25hbWVzKCkKY2xhc3MobmVpZ2gpCmBgYAoKYGBge3J9CnBsb3QobmVpZ2gpCmBgYAoKCgojIyBSZW1pbmRlciAtIEpvaW5zCgpgYGB7cn0KZGYxPXRpYmJsZShmcnVpdD1jKCJhcHBsZSIsImJhbmFuYSIsImNoZXJyeSIpLGNvc3Q9YygxLjUsMS4yLDIuMjUpKQpkZjI9dGliYmxlKGZydWl0PWMoImFwcGxlIiwiYXBwbGUiLCJjaGVycnkiLCJsZW1vbiIpLAogICAgICAgICAgIGRlc2VydD1jKCJwaWUiLCJjb2JibGVyIiwiY29iYmxlciIsImNoZWVzZWNha2UiKSwKICAgICAgICAgICBjYWw9Yyg0MDAsNDMwLDUwMCw1NTApKQpkZjEKYGBgCmBgYHtyfQpkZjIKYGBgCmBgYHtyfQpsZWZ0X2pvaW4oZGYxLGRmMixieT0iZnJ1aXQiKQpgYGAKCiMjIEludmVzdGlnYXRpbmcgam9pbmluZyBzcGF0aWFsIGFuZCBub24tc3BhdGlhbCBkYXRhCgoKQ292aWQgY2FzZSBpbmZvcm1hdGlvbiBpcyBhdmFpbGFibGUgZnJvbSBvcGVuZGF0YWRjOgoKaHR0cHM6Ly9vcGVuZGF0YS5kYy5nb3YvZGF0YXNldHMvRENHSVM6OmRjLWNvdmlkLTE5LXRvdGFsLXBvc2l0aXZlLWNhc2VzLWJ5LW5laWdoYm9yaG9vZC9hYm91dAoKUmVhZCBjYXNlcyBpbmZvcm1hdGlvbjoKCmBgYHtyIG1lc3NhZ2U9RkFMU0UsIHdhcm5pbmc9RkFMU0V9CmRmX2M9cmVhZF9jc3YoaGVyZSgiRENfQ09WSUQtMTlfVG90YWxfUG9zaXRpdmVfQ2FzZXNfYnlfTmVpZ2hib3Job29kX2pvZXkuY3N2IikpICU+JSBjbGVhbl9uYW1lcygpIAoKZGZfY2FzZXM9ZGZfYyAlPiUKICBmaWx0ZXIoYXNfZGF0ZShkYXRlX3JlcG9ydGVkKSA9PSAiMjAyMi0wMi0yMiIpICU+JSAKICBzZXBhcmF0ZShuZWlnaGJvcmhvb2QsaW50bz1jKCJjb2RlIiwibmFtZSIpLHNlcCA9ICI6IikgJT4lCiAgbXV0YXRlKGNvZGU9Y2FzZV93aGVuKAogICAgY29kZT09Ik4zNSIgfiJOMCIsCiAgICBUUlVFIH4gY29kZQogICkpICU+JQogIHNlbGVjdCgtb2JqZWN0aWQsLWRhdGVfcmVwb3J0ZWQpCgoKYGBgCgoKIyMgUmVndWxhciBqb2luaW5nIChvZiBkYXRhZnJhbWVzKQoKYGBge3J9Cm5laWdoMj1sZWZ0X2pvaW4obmVpZ2gsZGZfY2FzZXMsYnk9YygiY29kZSIpKSAKCnRtYXBfbW9kZSgidmlldyIpCgp0bV9zaGFwZShuZWlnaDIpICt0bV9wb2x5Z29ucygidG90YWxfcG9zaXRpdmVzIixhbHBoYT0uNSkKYGBgCgoKIyMgSm9pbmluZyB3aXRoIG90aGVyIHNwYXRpYWwgZGF0YQoKTGV0J3MgZ2V0IHNvbWUgZGF0YSB1c2luZyBgdGlkeWNlbnN1c2AuICBOZWVkIGFuIEFQSSBrZXkgICBodHRwczovL2FwaS5jZW5zdXMuZ292L2RhdGEva2V5X3NpZ251cC5odG1sCgoKYGBge3J9CgoKY2Vuc3VzX2FwaV9rZXkoImQ0NDM5NWUyZmExMDFmODIyNjBmYWU2Yjg0NTY3NmQ3MWYwMTdiNzAiKQoKI3doYXQgdmFyaWFibGVzCnYyMCA9IGxvYWRfdmFyaWFibGVzKDIwMTgsImFjczUiKQojIG1lZGlhbl9mYW1pbHlfaW5jb21lPSIJQjA2MDExXzAwMSIgCiMgYWxsICJCMDAwMDFfMDAxIgkKI2JsYWNrICJCMDIwMDlfMDAxIgpgYGAKCgpHZXQgc29tZSBkYXRhOgoKYGBge3J9CmRmX2NlbmN1cz1nZXRfYWNzKGdlb2dyYXBoeSA9ICJ0cmFjdCIsCiAgICAgICAgICAgICAgICAgIHZhcmlhYmxlcz1jKCJtZWRpYW5faW5jIj0iQjA2MDExXzAwMSIsCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICJwb3AiPSJCMDEwMDFfMDAxIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgInBvcF9ibGFjayI9IkIwMjAwOV8wMDEiKSwKICAgICAgICAgICAgICAgICAgc3RhdGU9IkRDIixnZW9tZXRyeT1UUlVFLHllYXI9MjAxOCkgCmBgYAoKYGBge3J9CmNsYXNzKGRmX2NlbmN1cykKcGxvdChkZl9jZW5jdXMpCmBgYApJdCdzIGluIGxvbmcgZm9ybWF0LiAgTGV0J3MgbWFrZSBpdCB3aWRlLgpgYGB7cn0KZGZfY2Vucz1kZl9jZW5jdXMgJT4lIHNlbGVjdCgtbW9lKSAlPiUgc3ByZWFkKHZhcmlhYmxlLGVzdGltYXRlKSAKCnRtX3NoYXBlKGRmX2NlbnMpICt0bV9wb2x5Z29ucygibWVkaWFuX2luYyIsYWxwaGE9LjUpCmBgYAoKCmBgYHtyfQoKICB0bV9zaGFwZShuZWlnaDIpICt0bV9ib3JkZXJzKGNvbD0iYmx1ZSIsbHdkPTUsYWxwaGE9LjIpKwogIHRtX3NoYXBlKGRmX2NlbnMpICt0bV9ib3JkZXJzKGNvbD0icmVkIixsd2Q9MSxhbHBoYT0uMykKYGBgCgoKCmBgYHtyfQojPDw8PDw8PCBIRUFECiNkZl9qPXN0X2pvaW4oZGZfY2VucyxuZWlnaDIpCiM9PT09PT09CiNkZl9qPXN0X2pvaW4oZGZfY2VucyxuZWlnaDIscHJlcGFyZWQ9RkFMU0UpCiM+Pj4+Pj4+IGFhZjAxYmU1Y2Y3MjE4MTlkZDJkZjYxNWFlZjdhMTk5OWJjZWMwYzIKYGBgCgpgYGB7cn0KZGZfY2Vuc19hZGo9ZGZfY2VucyAlPiUgc3RfdHJhbnNmb3JtKDQzMjYpCmBgYAoKYGBge3J9CmRmX2o9c3Rfam9pbihkZl9jZW5zX2FkaixuZWlnaDIsbGFyZ2VzdD1UUlVFKQpgYGAKT3RoZXIgb3JkZXI/OgoKYGBge3J9CiM8PDw8PDw8IEhFQUQKIyNkZl9qX3JldiA9IHN0X2pvaW4obmVpZ2gyLGRmX2NlbnNfYWRqLGxhcmdlc3Q9VFJVRSkKIz09PT09PT0KI2RmX2pfcmV2ID0gc3Rfam9pbihuZWlnaDIsZGZfY2Vuc19hZGosbGFyZ2VzdD1UUlVFKQojPj4+Pj4+PiBhYWYwMWJlNWNmNzIxODE5ZGQyZGY2MTVhZWY3YTE5OTliY2VjMGMyCmBgYAoKU2luY2Ugd2Ugd2FudCB0aGUgZ2VvbWV0cnkgZm9yIHRoZSBORUlHSEJPUkhPT0RTLCB3ZSBuZWVkIGEgdG8gd29yayBhIGxpdHRsZSBoYXJkZXI6CgpgYGB7cn0KZGYxPWRmX2ogJT4lIHNlbGVjdChtZWRpYW5faW5jLHBvcCxwb3BfYmxhY2ssb2JqZWN0aWQpICU+JQogIGdyb3VwX2J5KG9iamVjdGlkKSAlPiUKICBzdW1tYXJpc2UocG9wX249c3VtKHBvcCksCiAgICAgICAgICAgIHBvcF9ibGFja19uPXN1bShwb3BfYmxhY2spLCAKICAgICAgICAgICAgYWRqX21lZGlhbl9pbmNvbWU9c3VtKHBvcCptZWRpYW5faW5jKS9wb3BfbikgCgpwbG90KGRmMSkKYGBgCgpgYGB7cn0KI2RmMj1sZWZ0X2pvaW4obmVpZ2gyLGRmMSkKCmRmMj1sZWZ0X2pvaW4obmVpZ2gyLGRmMSAlPiUgc3Rfc2V0X2dlb21ldHJ5KE5VTEwpKQoKYGBgCgpgYGB7cn0KZGYyPWRmMiAlPiUgbXV0YXRlKGJsYWNrX3BlcmM9cG9wX2JsYWNrX24vcG9wX24sIGNvdmlkX3JhdGU9dG90YWxfcG9zaXRpdmVzL3BvcF9uKQp0bV9zaGFwZShkZjIpK3RtX3BvbHlnb25zKGMoImFkal9tZWRpYW5faW5jb21lIiwiY292aWRfcmF0ZSIsImJsYWNrX3BlcmMiKSkKYGBgCgoKCmBgYHtyfQpkZjIgJT4lIGZpbHRlcihvYmplY3RpZCE9MzApICU+JSB0bV9zaGFwZSgpK3RtX3BvbHlnb25zKGMoImFkal9tZWRpYW5faW5jb21lIiwiY292aWRfcmF0ZSIsImJsYWNrX3BlcmMiKSxhbHBoYT0uNCkKYGBgCiNmaW5kIHdoZXJlIHBlb3BsZSByaWRlIGJpa2VzIChiaWtlcyBzdGFydGVkIGluIGVhY2ggJ2Rpc3RyaWN0JykKYGBge3J9CmJpa2VfZGF0YSA8LSByZWFkX2NzdigiMjAyMjA5LWNhcGl0YWxiaWtlc2hhcmUtdHJpcGRhdGEuY3N2IikgJT4lIGNsZWFuX25hbWVzKCkKYGBgCgpgYGB7cn0KYmlrZV9kYXRhX3NmIDwtIGJpa2VfZGF0YSAlPiUKICBtdXRhdGVfYXQodmFycyhzdGFydF9sYXQsIHN0YXJ0X2xuZyksIGFzLm51bWVyaWMpICU+JQogIHN0X2FzX3NmKAogICAgY29vcmRzID0gYygic3RhcnRfbGF0IiwgInN0YXJ0X2xuZyIpLCAKICAgIGFnciA9ICJjb25zdGFudCIsCiAgICBjcnMgPSAiNDMyNiIKICApICU+JQogIHNhbXBsZV9uKDEwMDApCmBgYAoKYGBge3J9CnN0X2NycyhiaWtlX2RhdGFfc2YpCnN0X2NycyhuZWlnaDIpCmBgYAoKYGBge3J9CnN0X2NycyhiaWtlX2RhdGFfc2YpIDwtIDQzMjYKYGBgCgpgYGB7cn0KYmlrZV9kYXRhX3NmXzEgPC0gYmlrZV9kYXRhX3NmICU+JQogIHNlbGVjdChnZW9tZXRyeSkgJT4lCiAgcmVuYW1lKGdlb21fcG9pbnRzID0gZ2VvbWV0cnkpCgpuZWlnaDJfMSA8LSBuZWlnaDIgJT4lCiAgc2VsZWN0KGdlb21ldHJ5KQpgYGAKICAKYGBge3J9CmRmX3BseiA9IHN0X2pvaW4oYmlrZV9kYXRhX3NmXzEsIG5laWdoMl8xLCBqb2luID0gc3Rfd2l0aGluKQoKI2RmX2Jpa2VzX2NvdW50IDwtIGNvdW50KGFzX3RpYmJsZShkZl9wbHopLCApCmBgYAoKCmh0dHBzOi8vZHctcm93bGFuZHMuZ2l0aHViLmlvL0pvYl9EZW5zaXR5X2FuZF9Db21tdXRlcy9Kb2JfRGVuc2l0eV9hbmRfQ29tbXV0ZXMuaHRtbAoKaHR0cHM6Ly93YWxrZXItZGF0YS5jb20vY2Vuc3VzLXIvaW5kZXguaHRtbAoKCldoYXQgb3RoZXIgaW50ZXJlc3RpbmcgcXVlc3Rpb25zCi0gaXMgcGVhayBpbiBiaWtlIGRhdGEgYWN0dWFsbHkgcGVvcGxlIGdvaW5nIHRvIHdvcmsgb3IgdG91cmlzdD8KLSBhcmUgY2FzdWFsIHJpZGVycyBpbiB0aGUgbW9yZSB0b3VyaXN0eSBhcmVhcz8Kb3BlbiBkYXRhIGRjLCB0b3VyaXN0IGRhdGEsIHJldmVyc2UgZ2VvIGNvZGluZyB0byBmaW5kIGxvY2F0aW9uIG9mIG1vbnVtZW50cyA6KToKClF1ZXN0aW9uIHRvIGFuc3dlcjoKSXMgdGhlcmUgYSBzcGF0aWFsIHBhdHRlciBkcml2ZW4gYXNzb2NpYXRlZCB3aXRoIG1lbWJlci9jYXN1YWw/Ci0gbG9vayBvbiBvcGVuIGRhdGEgZGMgc2l0ZQotIGNvdWxkIGJlIHNvbWUgZGF0YSBvbiB0b3VyaXN0IGFjdGl2aXR5Cgo=</div>
 
 
 
@@ -1956,7 +2162,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("final_proj_JAW.Rmd");
+  window.initializeSourceEmbed("spatial_join_demo_student_joey.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>
