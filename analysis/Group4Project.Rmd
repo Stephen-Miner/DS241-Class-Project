@@ -27,3 +27,21 @@ while(i < 60) {
   Sys.sleep(60)
 }
 ```
+
+```{r}
+script="U:/DS241-Class-Project/analysis/getstationstatus.R"
+
+taskscheduler_create(taskname = "stationstatustask", 
+                     rscript = script, 
+                     schedule = "MINUTE", 
+                     starttime = "09:25")
+
+```
+
+
+```{r}
+taskscheduler_stop(taskname)
+
+schtasks /Create /TN "getstationstatus.R" /TR "cmd /c C:/PROGRA~1/R/R-42~1.0/bin/Rscript.exe \"U:/DS241-Class-Project/analysis/getstationstatus.R\"  >> \"U:/DS241-Class-Project/analysis/getstationstatus.log\" 2>&1" /SC MINUTE /ST 09:39 /SD "07/12/2022"
+```
+
