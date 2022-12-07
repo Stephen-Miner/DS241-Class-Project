@@ -33,7 +33,7 @@ library(sp)
 
 ## read spacial data
 ```{r}
-neigh=st_read(here("DC_Health_Planning_Neighborhoods_joey.geojson")) %>% clean_names()
+neigh=st_read(here("analysis", "DC_Health_Planning_Neighborhoods_joey.geojson")) %>% clean_names()
 class(neigh)
 ```
 
@@ -49,8 +49,7 @@ v20 = load_variables(2018,"acs5")
 #---------------------------------------------------------------
 df_cencus=get_acs(geography = "tract",
                   variables=c("median_inc"="B06011_001",
-                              "pop"="B01001_001",
-                              "pop_black"="B02009_001"),
+                              "pop"="B01001_001"),
                   state="DC",geometry=TRUE,year=2018) 
 #---------------------------------------------------------------
 df_cens=df_cencus %>% select(-moe) %>% spread(variable,estimate)
@@ -58,15 +57,16 @@ df_cens_adj=df_cens %>% st_transform(4326)
 #---------------------------------------------------------------
 df_j=st_join(df_cens_adj,neigh,largest=TRUE)
 #---------------------------------------------------------------
-df1=df_j %>% select(median_inc,pop,pop_black,objectid) %>%
+df1=df_j %>% select(median_inc,pop,objectid) %>%
   group_by(objectid) %>%
   summarise(pop_n=sum(pop),
-            pop_black_n=sum(pop_black), 
             adj_median_income=sum(pop*median_inc)/pop_n) 
 #---------------------------------------------------------------
 df2=left_join(neigh2,df1 %>% st_set_geometry(NULL))
-```
 
+#tm_shape(df_cens_adj)+tm_polygons()
+```
+WORK WITH df_cens_adj
 ## Bike Data
 ```{r}
 bike_data <- read_csv("202209-capitalbikeshare-tripdata.csv") %>% clean_names()
@@ -78,6 +78,7 @@ bike_data_sf <- bike_data %>%
     agr = "constant",
     crs = "4326"
   ) %>%
+  rename(startpoint=geometry) %>%
   sample_n(1000)
 #---------------------------------------------------------------
 st_crs(bike_data_sf) <- 4326
