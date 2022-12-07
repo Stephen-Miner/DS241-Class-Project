@@ -54,6 +54,7 @@ haversine <- function(long1, lat1, long2, lat2, round = 3) {
 Just doing a sample for a Monday, this is for September 5, 2022, the first Monday of the month.
 ```{r}
 bikeshare1 = bikeshare %>% select(ride_id, slat = start_lat, slng = start_lng) %>% na.omit() 
+bikeshare1_end = bikeshare %>% select(ride_id, elat = end_lat, elng = end_lng) %>% na.omit() 
 metro_stations1 = metro_stations %>% select(end_station_name = name, lat = y, lng = x) %>% na.omit()
 ```
 
@@ -72,18 +73,18 @@ bikeshare1$distance <- apply(distmatrix, 1, min)/1000
 Counts the amount of bikes parked within 0.1524/500ft, close enough to consider bike being used for final mile.
 ```{r}
 final_mile = bikeshare1 %>% filter(distance < 0.1524) 
-bikeshare_end = bikeshare %>% select(ride_id, elat = end_lat, elng = end_lng)
-new = left_join(final_mile, bikeshare_end, by = "ride_id")
+new = left_join(final_mile, bikeshare1_end, by = "ride_id")
+end_points = new %>% st_as_sf(new, coords = c("elng", "elat"),crs = st_crs(4326), na.fail = FALSE, dim = "end_point")
 ```
 
 ```{r}
 final_mile1 = new %>% mutate(start_to_end = haversine(slng, slat, elng, elat))
-final_mile1 = final_mile1 %>% filter(start_to_end <= 1.60934 & start_to_end != 0) %>% select(ride_id, close_station, distance, start_to_end)
+final_mile1_start_cnt = final_mile1 %>% filter(start_to_end <= 1.60934 & start_to_end != 0) %>% select(ride_id, close_station, distance, start_to_end, elng, elat)
 ```
 
 Make all of the data frames that we'll use for analysis.
 ```{r}
-final_mile1_grouped = final_mile1 %>% group_by(close_station) %>% 
+final_mile1_grouped = final_mile1_start_cnt %>% group_by(close_station) %>% 
   summarise(count = n(), avg_distance_to_bikeshare = mean(distance), 
             avg_ride_distance = mean(start_to_end))
 library(geojsonsf)
@@ -91,6 +92,7 @@ metro_stations_sf = metro_stations = geojson_sf(here("data_raw", "dc_metro_stati
   clean_names() %>% select(close_station = name, metro_location = geometry)
 final_mile1_geo = left_join(final_mile1_grouped, metro_stations_sf, by="close_station")
 final_mile1_geo = st_as_sf(x = final_mile1_geo, crs = st_crs(metro_stations_sf))
+final_test = final_mile1_start_cnt %>% left_join(bikeshare1_end, by = "ride_id")
 ```
 
 
