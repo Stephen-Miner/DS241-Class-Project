@@ -1785,18 +1785,6 @@ library(taskscheduleR) #might be useful for running code every minute</code></pr
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGNfcmFjIDwtIGdyYWJfbG9kZXMoc3RhdGUgPSBcImRjXCIsIHllYXIgPSAyMDE5LCBsb2Rlc190eXBlID0gXCJyYWNcIiwgXG4gICAgICAgICAgICAgICAgICAgICBqb2JfdHlwZSA9IFwiSlQwMVwiLCBzZWdtZW50ID0gXCJTMDAwXCIsIGFnZ19nZW8gPSBcInRyYWN0XCIpXG5gYGAifQ== -->
-<pre class="r"><code>dc_rac &lt;- grab_lodes(state = &quot;dc&quot;, year = 2019, lodes_type = &quot;rac&quot;, 
-                     job_type = &quot;JT01&quot;, segment = &quot;S000&quot;, agg_geo = &quot;tract&quot;)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiRG93bmxvYWRpbmcgaHR0cHM6Ly9sZWhkLmNlcy5jZW5zdXMuZ292L2RhdGEvbG9kZXMvTE9ERVM3L2RjL3JhYy9kY19yYWNfUzAwMF9KVDAxXzIwMTkuY3N2Lmd6IHRvIEM6XFxVc2Vyc1xcdnZleGlcXEFwcERhdGFcXExvY2FsL2xlaGRyL2xlaGRyL0NhY2hlL2RjX3JhY19TMDAwX0pUMDFfMjAxOS5jc3YuZ3ogbm93Li4uXG5SZW1vdmVkIEM6XFxVc2Vyc1xcdnZleGlcXEFwcERhdGFcXExvY2FsL2xlaGRyL2xlaGRyL0NhY2hlL2RjX3JhY19TMDAwX0pUMDFfMjAxOS5jc3YuZ3ouXG4ifQ== -->
-<pre><code>Downloading https://lehd.ces.census.gov/data/lodes/LODES7/dc/rac/dc_rac_S000_JT01_2019.csv.gz to C:\Users\vvexi\AppData\Local/lehdr/lehdr/Cache/dc_rac_S000_JT01_2019.csv.gz now...
-Removed C:\Users\vvexi\AppData\Local/lehdr/lehdr/Cache/dc_rac_S000_JT01_2019.csv.gz.</code></pre>
-<!-- rnb-output-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
 <!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuI2NvZGUgdGhhdCBydW5zIGV2ZXJ5IG1pbnV0ZSBmb3IgYW4gaG91clxuI3Byb2JsZW0gd2l0aCB0aGlzIGNvZGUgaXMgdGhhdCBpdCBkb2Vzbid0IGFjY291bnQgZm9yIHRoZSB0aW1lIGl0IHRha2VzIHRvIGRvXG4jVGhlIGNhbGN1bGF0aW9uXG5pID0gMFxud2hpbGUoaSA8IDYwKSB7XG4gIHByaW50KHBhc3RlKFwiaXRzIGJlZW5cIiwgaSwgXCJtaW51dGVzIHNpbmNlIHRoaXMgc3RhcnRlZCwgZ2l2ZSBvciB0YWtlIGEgYml0XCIpKVxuICBpID0gaSArIDFcbiAgXG4gIFN5cy5zbGVlcCg2MClcbn1cbmBgYCJ9 -->
 <pre class="r"><code>#code that runs every minute for an hour
 #problem with this code is that it doesn&#39;t account for the time it takes to do
@@ -1811,7 +1799,7 @@ while(i &lt; 60) {
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNsYXNzIFByb2plY3QiDQpkYXRlOiAgIjIwMjItMTEtMjkiDQphdXRob3I6ICJOYXRlIFNtdWxsZW4sIEFsZXggTGluZHF1aXN0LCBXeW50ZXIgTWFsb25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KGhlcmUpDQpsaWJyYXJ5KGphbml0b3IpDQpsaWJyYXJ5KGdiZnMpDQpsaWJyYXJ5KHRhc2tzY2hlZHVsZVIpICNtaWdodCBiZSB1c2VmdWwgZm9yIHJ1bm5pbmcgY29kZSBldmVyeSBtaW51dGUNCmBgYA0KDQpgYGB7cn0NCnN0YXRpb25fc3RhdHVzIDwtIGdldF9zdGF0aW9uX3N0YXR1cygiY2FiaSIpICU+JSANCiAgc2VsZWN0KHN0YXRpb25faWQsIG51bV9kb2Nrc19hdmFpbGFibGUsIG51bV9kb2Nrc19kaXNhYmxlZCwgDQogICAgICAgICBudW1fYmlrZXNfYXZhaWxhYmxlLCBudW1fZWJpa2VzX2F2YWlsYWJsZSwgbnVtX2Jpa2VzX2Rpc2FibGVkKSAlPiUNCiAgbXV0YXRlKHRvdGFsX2Jpa2VzX2F2YWlsYWJsZSA9IG51bV9iaWtlc19hdmFpbGFibGUgKyBudW1fZG9ja3NfYXZhaWxhYmxlICANCiAgICAgICAgICsgbnVtX2ViaWtlc19hdmFpbGFibGUgLSBudW1fZG9ja3NfZGlzYWJsZWQgLSBudW1fYmlrZXNfZGlzYWJsZWQgKQ0KYGBgDQoNCmBgYHtyfQ0KI2NvZGUgdGhhdCBydW5zIGV2ZXJ5IG1pbnV0ZSBmb3IgYW4gaG91cg0KI3Byb2JsZW0gd2l0aCB0aGlzIGNvZGUgaXMgdGhhdCBpdCBkb2Vzbid0IGFjY291bnQgZm9yIHRoZSB0aW1lIGl0IHRha2VzIHRvIGRvDQojVGhlIGNhbGN1bGF0aW9uDQppID0gMA0Kd2hpbGUoaSA8IDYwKSB7DQogIHByaW50KHBhc3RlKCJpdHMgYmVlbiIsIGksICJtaW51dGVzIHNpbmNlIHRoaXMgc3RhcnRlZCwgZ2l2ZSBvciB0YWtlIGEgYml0IikpDQogIGkgPSBpICsgMQ0KICANCiAgU3lzLnNsZWVwKDYwKQ0KfQ0KYGBgDQo=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNsYXNzIFByb2plY3QiDQpkYXRlOiAgIjIwMjItMTEtMjkiDQphdXRob3I6ICJOYXRlIFNtdWxsZW4sIEFsZXggTGluZHF1aXN0LCBXeW50ZXIgTWFsb25lIg0Kb3V0cHV0OiBodG1sX25vdGVib29rDQotLS0NCg0KYGBge3J9DQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KGhlcmUpDQpsaWJyYXJ5KGphbml0b3IpDQpsaWJyYXJ5KGdiZnMpDQpsaWJyYXJ5KHRhc2tzY2hlZHVsZVIpICNtaWdodCBiZSB1c2VmdWwgZm9yIHJ1bm5pbmcgY29kZSBldmVyeSBtaW51dGUNCmBgYA0KDQoNCmBgYHtyfQ0KI2NvZGUgdGhhdCBydW5zIGV2ZXJ5IG1pbnV0ZSBmb3IgYW4gaG91cg0KI3Byb2JsZW0gd2l0aCB0aGlzIGNvZGUgaXMgdGhhdCBpdCBkb2Vzbid0IGFjY291bnQgZm9yIHRoZSB0aW1lIGl0IHRha2VzIHRvIGRvDQojVGhlIGNhbGN1bGF0aW9uDQppID0gMA0Kd2hpbGUoaSA8IDYwKSB7DQogIHByaW50KHBhc3RlKCJpdHMgYmVlbiIsIGksICJtaW51dGVzIHNpbmNlIHRoaXMgc3RhcnRlZCwgZ2l2ZSBvciB0YWtlIGEgYml0IikpDQogIGkgPSBpICsgMQ0KICANCiAgU3lzLnNsZWVwKDYwKQ0KfQ0KYGBgDQo=</div>
 
 
 

@@ -14,13 +14,6 @@ library(gbfs)
 library(taskscheduleR) #might be useful for running code every minute
 ```
 
-```{r}
-station_status <- get_station_status("cabi") %>% 
-  select(station_id, num_docks_available, num_docks_disabled, 
-         num_bikes_available, num_ebikes_available, num_bikes_disabled) %>%
-  mutate(total_bikes_available = num_bikes_available + num_docks_available  
-         + num_ebikes_available - num_docks_disabled - num_bikes_disabled )
-```
 
 ```{r}
 #code that runs every minute for an hour
