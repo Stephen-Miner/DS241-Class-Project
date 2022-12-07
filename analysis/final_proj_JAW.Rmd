@@ -62,7 +62,7 @@ df1=df_j %>% select(median_inc,pop,objectid) %>%
   summarise(pop_n=sum(pop),
             adj_median_income=sum(pop*median_inc)/pop_n) 
 #---------------------------------------------------------------
-df2=left_join(neigh2,df1 %>% st_set_geometry(NULL))
+df2=left_join(neigh,df1 %>% st_set_geometry(NULL))
 
 #tm_shape(df_cens_adj)+tm_polygons()
 ```
