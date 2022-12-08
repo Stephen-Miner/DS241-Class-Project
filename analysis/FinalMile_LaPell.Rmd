@@ -5,7 +5,7 @@ date: "2022-12-04"
 output: html_document
 ---
 
-This file is to be used for the original final mile analysis. Each person's own analysis will stem from this in new files.
+This file is used to merge LODES job data with bikerides' endpoints that were under 1 mile. This is to determine if there is a relation between the final mile rides and job counts in neighborhoods.
 
 Load packages
 ```{r}
