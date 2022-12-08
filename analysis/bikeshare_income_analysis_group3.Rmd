@@ -1,5 +1,5 @@
 ---
-title: "Mob 3 Project"
+title: "Group 3 Project"
 output: html_notebook
 ---
 
@@ -14,25 +14,51 @@ library(here)
 library(sf)
 library(tmap)
 library(tidycensus)
+library(plotly)
+library(ggforce)
 ```
 
 
 ```{r}
 census_api_key("260b47c83abf4017c26b5022527d1558744b41cf", overwrite = TRUE)
 v20 = load_variables(2018,"acs5")
-
 ```
 
 ```{r}
 tmap_mode("view")
 
 df_census=get_acs(geography = "tract",
-                  variables=c("median_inc"="B06011_001"),
+                  variables=c("under_10000"="B19001_002", 
+                              "10000_to_14999"="B19001_003", 
+                              "15000_to_19999"="B19001_004", 
+                              "20000_to_24999"="B19001_005", 
+                              "25000_to_29999"="B19001_006", 
+                              "30000_to_34999"="B19001_007", 
+                              "35000_to_39999"="B19001_008", 
+                              "40000_to_44999"="B19001_009", 
+                              "45000_to_49999"="B19001_010", 
+                              "50000_to_59999"="B19001_011", 
+                              "60000_to_74999"="B19001_012", 
+                              "75000_to_99999"="B19001_013",
+                              "100000_to_124999"="B19001_014", 
+                              "125000_to_149999"="B19001_015", 
+                              "150000_to_199999"="B19001_016", 
+                              "200000_or_more"="B19001_017"),
                   state="DC",geometry=TRUE,year=2018) 
 df_cens=df_census %>% select(-moe) %>% spread(variable,estimate) 
-
-tm_shape(df_cens) +tm_polygons("median_inc",alpha=.5)
 ```
+
+```{r}
+n_pages <- 20 
+for (i in seq_len(n_pages)) {
+  ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = i)
+}
+```
+
+```{r}
+
+```
+
 
 B19013_001
 
@@ -47,7 +73,6 @@ $150,000 or more
 
 #Do "rich" neighborhoods bike-share differently than poor?
 ##Game plan
-- figure out what data to use
 - define differently, rich, and poor
 - Does resident income or worker income affect bikeshare in a neighborhood more?
 - Different ways to measure income. Mean 
@@ -62,3 +87,27 @@ $150,000 or more
             - can either plot histogram side by side
             - look at histograms, see what's there. If you see other characteristics, it will give you a perspective of approach  
 - Compare visually, pull data of breakdown things then see how they are different
+
+
+B19013A_001
+B19013B_001
+"median_inc"="B06011_001"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

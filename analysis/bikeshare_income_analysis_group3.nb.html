@@ -11,7 +11,7 @@
 
 
 
-<title>Mob 3 Project</title>
+<title>Group 3 Project</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -1755,7 +1755,7 @@ pre code {
 
 
 
-<h1 class="title toc-ignore">Mob 3 Project</h1>
+<h1 class="title toc-ignore">Group 3 Project</h1>
 
 </div>
 
@@ -1763,7 +1763,7 @@ pre code {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShsZWhkcilcbmxpYnJhcnkoZHBseXIpXG5saWJyYXJ5KGtuaXRyKVxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KGphbml0b3IpXG5saWJyYXJ5KGx1YnJpZGF0ZSlcbmxpYnJhcnkoaGVyZSlcbmxpYnJhcnkoc2YpXG5saWJyYXJ5KHRtYXApXG5saWJyYXJ5KHRpZHljZW5zdXMpXG5gYGAifQ== -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShsZWhkcilcbmxpYnJhcnkoZHBseXIpXG5saWJyYXJ5KGtuaXRyKVxubGlicmFyeSh0aWR5dmVyc2UpXG5saWJyYXJ5KGphbml0b3IpXG5saWJyYXJ5KGx1YnJpZGF0ZSlcbmxpYnJhcnkoaGVyZSlcbmxpYnJhcnkoc2YpXG5saWJyYXJ5KHRtYXApXG5saWJyYXJ5KHRpZHljZW5zdXMpXG5saWJyYXJ5KHBsb3RseSlcbmxpYnJhcnkoZ2dmb3JjZSlcbmBgYCJ9 -->
 <pre class="r"><code>library(lehdr)
 library(dplyr)
 library(knitr)
@@ -1773,8 +1773,13 @@ library(lubridate)
 library(here)
 library(sf)
 library(tmap)
-library(tidycensus)</code></pre>
+library(tidycensus)
+library(plotly)
+library(ggforce)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhnZ2ZvcmNl4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjJcbiJ9 -->
+<pre><code>Warning: package ‘ggforce’ was built under R version 4.2.2</code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -1785,24 +1790,61 @@ library(tidycensus)</code></pre>
 <!-- rnb-output-begin eyJkYXRhIjoiVG8gaW5zdGFsbCB5b3VyIEFQSSBrZXkgZm9yIHVzZSBpbiBmdXR1cmUgc2Vzc2lvbnMsIHJ1biB0aGlzIGZ1bmN0aW9uIHdpdGggYGluc3RhbGwgPSBUUlVFYC5cbiJ9 -->
 <pre><code>To install your API key for use in future sessions, run this function with `install = TRUE`.</code></pre>
 <!-- rnb-output-end -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudjIwID0gbG9hZF92YXJpYWJsZXMoMjAxOCxcImFjczVcIilcblxuYGBgIn0= -->
-<pre class="r"><code>v20 = load_variables(2018,&quot;acs5&quot;)
-</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudjIwID0gbG9hZF92YXJpYWJsZXMoMjAxOCxcImFjczVcIilcbmBgYCJ9 -->
+<pre class="r"><code>v20 = load_variables(2018,&quot;acs5&quot;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudG1hcF9tb2RlKFwidmlld1wiKVxuXG5kZl9jZW5zdXM9Z2V0X2FjcyhnZW9ncmFwaHkgPSBcInRyYWN0XCIsXG4gICAgICAgICAgICAgICAgICB2YXJpYWJsZXM9YyhcIm1lZGlhbl9pbmNcIj1cIkIwNjAxMV8wMDFcIiksXG4gICAgICAgICAgICAgICAgICBzdGF0ZT1cIkRDXCIsZ2VvbWV0cnk9VFJVRSx5ZWFyPTIwMTgpIFxuZGZfY2Vucz1kZl9jZW5zdXMgJT4lIHNlbGVjdCgtbW9lKSAlPiUgc3ByZWFkKHZhcmlhYmxlLGVzdGltYXRlKSBcblxudG1fc2hhcGUoZGZfY2VucykgK3RtX3BvbHlnb25zKFwibWVkaWFuX2luY1wiLGFscGhhPS41KVxuYGBgIn0= -->
-<pre class="r"><code>tmap_mode(&quot;view&quot;)
-
-df_census=get_acs(geography = &quot;tract&quot;,
-                  variables=c(&quot;median_inc&quot;=&quot;B06011_001&quot;),
-                  state=&quot;DC&quot;,geometry=TRUE,year=2018) 
-df_cens=df_census %&gt;% select(-moe) %&gt;% spread(variable,estimate) 
-
-tm_shape(df_cens) +tm_polygons(&quot;median_inc&quot;,alpha=.5)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudG1hcF9tb2RlKFwidmlld1wiKVxuYGBgIn0= -->
+<pre class="r"><code>tmap_mode(&quot;view&quot;)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoidG1hcCBtb2RlIHNldCB0byBpbnRlcmFjdGl2ZSB2aWV3aW5nXG4ifQ== -->
+<pre><code>tmap mode set to interactive viewing</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfY2Vuc3VzPWdldF9hY3MoZ2VvZ3JhcGh5ID0gXCJ0cmFjdFwiLFxuICAgICAgICAgICAgICAgICAgdmFyaWFibGVzPWMoXCJ1bmRlcl8xMDAwMFwiPVwiQjE5MDAxXzAwMlwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiMTAwMDBfdG9fMTQ5OTlcIj1cIkIxOTAwMV8wMDNcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIjE1MDAwX3RvXzE5OTk5XCI9XCJCMTkwMDFfMDA0XCIsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCIyMDAwMF90b18yNDk5OVwiPVwiQjE5MDAxXzAwNVwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiMjUwMDBfdG9fMjk5OTlcIj1cIkIxOTAwMV8wMDZcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIjMwMDAwX3RvXzM0OTk5XCI9XCJCMTkwMDFfMDA3XCIsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCIzNTAwMF90b18zOTk5OVwiPVwiQjE5MDAxXzAwOFwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiNDAwMDBfdG9fNDQ5OTlcIj1cIkIxOTAwMV8wMDlcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIjQ1MDAwX3RvXzQ5OTk5XCI9XCJCMTkwMDFfMDEwXCIsIFxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXCI1MDAwMF90b181OTk5OVwiPVwiQjE5MDAxXzAxMVwiLCBcbiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwiNjAwMDBfdG9fNzQ5OTlcIj1cIkIxOTAwMV8wMTJcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIjc1MDAwX3RvXzk5OTk5XCI9XCJCMTkwMDFfMDEzXCIsXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIjEwMDAwMF90b18xMjQ5OTlcIj1cIkIxOTAwMV8wMTRcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIjEyNTAwMF90b18xNDk5OTlcIj1cIkIxOTAwMV8wMTVcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIjE1MDAwMF90b18xOTk5OTlcIj1cIkIxOTAwMV8wMTZcIiwgXG4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICBcIjIwMDAwMF9vcl9tb3JlXCI9XCJCMTkwMDFfMDE3XCIpLFxuICAgICAgICAgICAgICAgICAgc3RhdGU9XCJEQ1wiLGdlb21ldHJ5PVRSVUUseWVhcj0yMDE4KSBcbmBgYCJ9 -->
+<pre class="r"><code>df_census=get_acs(geography = &quot;tract&quot;,
+                  variables=c(&quot;under_10000&quot;=&quot;B19001_002&quot;, 
+                              &quot;10000_to_14999&quot;=&quot;B19001_003&quot;, 
+                              &quot;15000_to_19999&quot;=&quot;B19001_004&quot;, 
+                              &quot;20000_to_24999&quot;=&quot;B19001_005&quot;, 
+                              &quot;25000_to_29999&quot;=&quot;B19001_006&quot;, 
+                              &quot;30000_to_34999&quot;=&quot;B19001_007&quot;, 
+                              &quot;35000_to_39999&quot;=&quot;B19001_008&quot;, 
+                              &quot;40000_to_44999&quot;=&quot;B19001_009&quot;, 
+                              &quot;45000_to_49999&quot;=&quot;B19001_010&quot;, 
+                              &quot;50000_to_59999&quot;=&quot;B19001_011&quot;, 
+                              &quot;60000_to_74999&quot;=&quot;B19001_012&quot;, 
+                              &quot;75000_to_99999&quot;=&quot;B19001_013&quot;,
+                              &quot;100000_to_124999&quot;=&quot;B19001_014&quot;, 
+                              &quot;125000_to_149999&quot;=&quot;B19001_015&quot;, 
+                              &quot;150000_to_199999&quot;=&quot;B19001_016&quot;, 
+                              &quot;200000_or_more&quot;=&quot;B19001_017&quot;),
+                  state=&quot;DC&quot;,geometry=TRUE,year=2018) </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiR2V0dGluZyBkYXRhIGZyb20gdGhlIDIwMTQtMjAxOCA1LXllYXIgQUNTXG5Eb3dubG9hZGluZyBmZWF0dXJlIGdlb21ldHJ5IGZyb20gdGhlIENlbnN1cyB3ZWJzaXRlLiAgVG8gY2FjaGUgc2hhcGVmaWxlcyBmb3IgdXNlIGluIGZ1dHVyZSBzZXNzaW9ucywgc2V0IGBvcHRpb25zKHRpZ3Jpc191c2VfY2FjaGUgPSBUUlVFKWAuXG5Vc2luZyBGSVBTIGNvZGUgJzExJyBmb3Igc3RhdGUgJ0RDJ1xuIn0= -->
+<pre><code>Getting data from the 2014-2018 5-year ACS
+Downloading feature geometry from the Census website.  To cache shapefiles for use in future sessions, set `options(tigris_use_cache = TRUE)`.
+Using FIPS code &#39;11&#39; for state &#39;DC&#39;</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZGZfY2Vucz1kZl9jZW5zdXMgJT4lIHNlbGVjdCgtbW9lKSAlPiUgc3ByZWFkKHZhcmlhYmxlLGVzdGltYXRlKSBcbmBgYCJ9 -->
+<pre class="r"><code>df_cens=df_census %&gt;% select(-moe) %&gt;% spread(variable,estimate) </code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubl9wYWdlcyA8LSAyMCBcbmZvciAoaSBpbiBzZXFfbGVuKG5fcGFnZXMpKSB7XG4gIGdncGxvdChkYXRhPWRmX2NlbnN1cywgbWFwcGluZz1hZXMoeD12YXJpYWJsZSkpICsgZ2VvbV9iYXIoYWVzKHdlaWdodD1lc3RpbWF0ZSkpICsgZmFjZXRfd3JhcF9wYWdpbmF0ZSh+R0VPSUQsIG5yb3cgPSAzLCBuY29sID0gMywgcGFnZSA9IGkpXG59XG5gYGAifQ== -->
+<pre class="r"><code>n_pages &lt;- 20 
+for (i in seq_len(n_pages)) {
+  ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = i)
+}</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>B19013_001</p>
@@ -1810,22 +1852,23 @@ tm_shape(df_cens) +tm_polygons(&quot;median_inc&quot;,alpha=.5)</code></pre>
 $49,999 $50,000 to $74,999 $75,000 to $99,999 $100,000 to $149,999
 $150,000 or more</p>
 <p>#Do “rich” neighborhoods bike-share differently than poor? ##Game
-plan - figure out what data to use - define differently, rich, and poor
-- Does resident income or worker income affect bikeshare in a
-neighborhood more? - Different ways to measure income. Mean -
-Distributions of income as opposed to single value - Look at v20 dataset
-- have some categories broken down into income brackets - how many
-people are in each bracket - you can pull how many households, people…
-in block - there may be breakdown of individuals, as well as households
-- now we have essentially two histograms want to show - can draw
-histogram for any census block - can either plot histogram side by side
-- look at histograms, see what’s there. If you see other
-characteristics, it will give you a perspective of approach<br />
+plan - define differently, rich, and poor - Does resident income or
+worker income affect bikeshare in a neighborhood more? - Different ways
+to measure income. Mean - Distributions of income as opposed to single
+value - Look at v20 dataset - have some categories broken down into
+income brackets - how many people are in each bracket - you can pull how
+many households, people… in block - there may be breakdown of
+individuals, as well as households - now we have essentially two
+histograms want to show - can draw histogram for any census block - can
+either plot histogram side by side - look at histograms, see what’s
+there. If you see other characteristics, it will give you a perspective
+of approach<br />
 - Compare visually, pull data of breakdown things then see how they are
 different</p>
+<p>B19013A_001 B19013B_001 “median_inc”=“B06011_001”</p>
 <!-- rnb-text-end -->
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIk1vYiAzIFByb2plY3QiDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmxpYnJhcnkobGVoZHIpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShrbml0cikNCmxpYnJhcnkodGlkeXZlcnNlKQ0KbGlicmFyeShqYW5pdG9yKQ0KbGlicmFyeShsdWJyaWRhdGUpDQpsaWJyYXJ5KGhlcmUpDQpsaWJyYXJ5KHNmKQ0KbGlicmFyeSh0bWFwKQ0KbGlicmFyeSh0aWR5Y2Vuc3VzKQ0KYGBgDQoNCg0KYGBge3J9DQpjZW5zdXNfYXBpX2tleSgiMjYwYjQ3YzgzYWJmNDAxN2MyNmI1MDIyNTI3ZDE1NTg3NDRiNDFjZiIsIG92ZXJ3cml0ZSA9IFRSVUUpDQp2MjAgPSBsb2FkX3ZhcmlhYmxlcygyMDE4LCJhY3M1IikNCg0KYGBgDQoNCmBgYHtyfQ0KdG1hcF9tb2RlKCJ2aWV3IikNCg0KZGZfY2Vuc3VzPWdldF9hY3MoZ2VvZ3JhcGh5ID0gInRyYWN0IiwNCiAgICAgICAgICAgICAgICAgIHZhcmlhYmxlcz1jKCJtZWRpYW5faW5jIj0iQjA2MDExXzAwMSIpLA0KICAgICAgICAgICAgICAgICAgc3RhdGU9IkRDIixnZW9tZXRyeT1UUlVFLHllYXI9MjAxOCkgDQpkZl9jZW5zPWRmX2NlbnN1cyAlPiUgc2VsZWN0KC1tb2UpICU+JSBzcHJlYWQodmFyaWFibGUsZXN0aW1hdGUpIA0KDQp0bV9zaGFwZShkZl9jZW5zKSArdG1fcG9seWdvbnMoIm1lZGlhbl9pbmMiLGFscGhhPS41KQ0KYGBgDQoNCkIxOTAxM18wMDENCg0KaW5jb21lIGluIGNlbnN1cw0KbGVzcyB0aGFuICAkMjAsMDAwDQokMjAsMDAwIHRvICQzNCw5OTkNCiQzNSwwMDAgdG8gJDQ5LDk5OQ0KJDUwLDAwMCB0byAkNzQsOTk5DQokNzUsMDAwIHRvICQ5OSw5OTkNCiQxMDAsMDAwIHRvICQxNDksOTk5DQokMTUwLDAwMCBvciBtb3JlDQoNCiNEbyAicmljaCIgbmVpZ2hib3Job29kcyBiaWtlLXNoYXJlIGRpZmZlcmVudGx5IHRoYW4gcG9vcj8NCiMjR2FtZSBwbGFuDQotIGZpZ3VyZSBvdXQgd2hhdCBkYXRhIHRvIHVzZQ0KLSBkZWZpbmUgZGlmZmVyZW50bHksIHJpY2gsIGFuZCBwb29yDQotIERvZXMgcmVzaWRlbnQgaW5jb21lIG9yIHdvcmtlciBpbmNvbWUgYWZmZWN0IGJpa2VzaGFyZSBpbiBhIG5laWdoYm9yaG9vZCBtb3JlPw0KLSBEaWZmZXJlbnQgd2F5cyB0byBtZWFzdXJlIGluY29tZS4gTWVhbiANCiAgICAtIERpc3RyaWJ1dGlvbnMgb2YgaW5jb21lIGFzIG9wcG9zZWQgdG8gc2luZ2xlIHZhbHVlDQotIExvb2sgYXQgdjIwIGRhdGFzZXQNCiAgICAtIGhhdmUgc29tZSBjYXRlZ29yaWVzIGJyb2tlbiBkb3duIGludG8gaW5jb21lIGJyYWNrZXRzDQogICAgLSBob3cgbWFueSBwZW9wbGUgYXJlIGluIGVhY2ggYnJhY2tldCANCiAgICAtIHlvdSBjYW4gcHVsbCBob3cgbWFueSBob3VzZWhvbGRzLCBwZW9wbGUuLi4gaW4gYmxvY2sNCiAgICAgICAgLSB0aGVyZSBtYXkgYmUgYnJlYWtkb3duIG9mIGluZGl2aWR1YWxzLCBhcyB3ZWxsIGFzIGhvdXNlaG9sZHMNCiAgICAgICAgLSBub3cgd2UgaGF2ZSBlc3NlbnRpYWxseSB0d28gaGlzdG9ncmFtcyB3YW50IHRvIHNob3cNCiAgICAgICAgICAgIC0gY2FuIGRyYXcgaGlzdG9ncmFtIGZvciBhbnkgY2Vuc3VzIGJsb2NrDQogICAgICAgICAgICAtIGNhbiBlaXRoZXIgcGxvdCBoaXN0b2dyYW0gc2lkZSBieSBzaWRlDQogICAgICAgICAgICAtIGxvb2sgYXQgaGlzdG9ncmFtcywgc2VlIHdoYXQncyB0aGVyZS4gSWYgeW91IHNlZSBvdGhlciBjaGFyYWN0ZXJpc3RpY3MsIGl0IHdpbGwgZ2l2ZSB5b3UgYSBwZXJzcGVjdGl2ZSBvZiBhcHByb2FjaCAgDQotIENvbXBhcmUgdmlzdWFsbHksIHB1bGwgZGF0YSBvZiBicmVha2Rvd24gdGhpbmdzIHRoZW4gc2VlIGhvdyB0aGV5IGFyZSBkaWZmZXJlbnQ=</div>
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkdyb3VwIDMgUHJvamVjdCINCm91dHB1dDogaHRtbF9ub3RlYm9vaw0KLS0tDQoNCmBgYHtyfQ0KbGlicmFyeShsZWhkcikNCmxpYnJhcnkoZHBseXIpDQpsaWJyYXJ5KGtuaXRyKQ0KbGlicmFyeSh0aWR5dmVyc2UpDQpsaWJyYXJ5KGphbml0b3IpDQpsaWJyYXJ5KGx1YnJpZGF0ZSkNCmxpYnJhcnkoaGVyZSkNCmxpYnJhcnkoc2YpDQpsaWJyYXJ5KHRtYXApDQpsaWJyYXJ5KHRpZHljZW5zdXMpDQpsaWJyYXJ5KHBsb3RseSkNCmxpYnJhcnkoZ2dmb3JjZSkNCmBgYA0KDQoNCmBgYHtyfQ0KY2Vuc3VzX2FwaV9rZXkoIjI2MGI0N2M4M2FiZjQwMTdjMjZiNTAyMjUyN2QxNTU4NzQ0YjQxY2YiLCBvdmVyd3JpdGUgPSBUUlVFKQ0KdjIwID0gbG9hZF92YXJpYWJsZXMoMjAxOCwiYWNzNSIpDQpgYGANCg0KYGBge3J9DQp0bWFwX21vZGUoInZpZXciKQ0KDQpkZl9jZW5zdXM9Z2V0X2FjcyhnZW9ncmFwaHkgPSAidHJhY3QiLA0KICAgICAgICAgICAgICAgICAgdmFyaWFibGVzPWMoInVuZGVyXzEwMDAwIj0iQjE5MDAxXzAwMiIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjEwMDAwX3RvXzE0OTk5Ij0iQjE5MDAxXzAwMyIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjE1MDAwX3RvXzE5OTk5Ij0iQjE5MDAxXzAwNCIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjIwMDAwX3RvXzI0OTk5Ij0iQjE5MDAxXzAwNSIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjI1MDAwX3RvXzI5OTk5Ij0iQjE5MDAxXzAwNiIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjMwMDAwX3RvXzM0OTk5Ij0iQjE5MDAxXzAwNyIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjM1MDAwX3RvXzM5OTk5Ij0iQjE5MDAxXzAwOCIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjQwMDAwX3RvXzQ0OTk5Ij0iQjE5MDAxXzAwOSIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjQ1MDAwX3RvXzQ5OTk5Ij0iQjE5MDAxXzAxMCIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjUwMDAwX3RvXzU5OTk5Ij0iQjE5MDAxXzAxMSIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjYwMDAwX3RvXzc0OTk5Ij0iQjE5MDAxXzAxMiIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjc1MDAwX3RvXzk5OTk5Ij0iQjE5MDAxXzAxMyIsDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiMTAwMDAwX3RvXzEyNDk5OSI9IkIxOTAwMV8wMTQiLCANCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICIxMjUwMDBfdG9fMTQ5OTk5Ij0iQjE5MDAxXzAxNSIsIA0KICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIjE1MDAwMF90b18xOTk5OTkiPSJCMTkwMDFfMDE2IiwgDQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAiMjAwMDAwX29yX21vcmUiPSJCMTkwMDFfMDE3IiksDQogICAgICAgICAgICAgICAgICBzdGF0ZT0iREMiLGdlb21ldHJ5PVRSVUUseWVhcj0yMDE4KSANCmRmX2NlbnM9ZGZfY2Vuc3VzICU+JSBzZWxlY3QoLW1vZSkgJT4lIHNwcmVhZCh2YXJpYWJsZSxlc3RpbWF0ZSkgDQpgYGANCg0KYGBge3J9DQpuX3BhZ2VzIDwtIDIwIA0KZm9yIChpIGluIHNlcV9sZW4obl9wYWdlcykpIHsNCiAgZ2dwbG90KGRhdGE9ZGZfY2Vuc3VzLCBtYXBwaW5nPWFlcyh4PXZhcmlhYmxlKSkgKyBnZW9tX2JhcihhZXMod2VpZ2h0PWVzdGltYXRlKSkgKyBmYWNldF93cmFwX3BhZ2luYXRlKH5HRU9JRCwgbnJvdyA9IDMsIG5jb2wgPSAzLCBwYWdlID0gaSkNCn0NCmBgYA0KDQpgYGB7cn0NCg0KYGBgDQoNCg0KQjE5MDEzXzAwMQ0KDQppbmNvbWUgaW4gY2Vuc3VzDQpsZXNzIHRoYW4gICQyMCwwMDANCiQyMCwwMDAgdG8gJDM0LDk5OQ0KJDM1LDAwMCB0byAkNDksOTk5DQokNTAsMDAwIHRvICQ3NCw5OTkNCiQ3NSwwMDAgdG8gJDk5LDk5OQ0KJDEwMCwwMDAgdG8gJDE0OSw5OTkNCiQxNTAsMDAwIG9yIG1vcmUNCg0KI0RvICJyaWNoIiBuZWlnaGJvcmhvb2RzIGJpa2Utc2hhcmUgZGlmZmVyZW50bHkgdGhhbiBwb29yPw0KIyNHYW1lIHBsYW4NCi0gZGVmaW5lIGRpZmZlcmVudGx5LCByaWNoLCBhbmQgcG9vcg0KLSBEb2VzIHJlc2lkZW50IGluY29tZSBvciB3b3JrZXIgaW5jb21lIGFmZmVjdCBiaWtlc2hhcmUgaW4gYSBuZWlnaGJvcmhvb2QgbW9yZT8NCi0gRGlmZmVyZW50IHdheXMgdG8gbWVhc3VyZSBpbmNvbWUuIE1lYW4gDQogICAgLSBEaXN0cmlidXRpb25zIG9mIGluY29tZSBhcyBvcHBvc2VkIHRvIHNpbmdsZSB2YWx1ZQ0KLSBMb29rIGF0IHYyMCBkYXRhc2V0DQogICAgLSBoYXZlIHNvbWUgY2F0ZWdvcmllcyBicm9rZW4gZG93biBpbnRvIGluY29tZSBicmFja2V0cw0KICAgIC0gaG93IG1hbnkgcGVvcGxlIGFyZSBpbiBlYWNoIGJyYWNrZXQgDQogICAgLSB5b3UgY2FuIHB1bGwgaG93IG1hbnkgaG91c2Vob2xkcywgcGVvcGxlLi4uIGluIGJsb2NrDQogICAgICAgIC0gdGhlcmUgbWF5IGJlIGJyZWFrZG93biBvZiBpbmRpdmlkdWFscywgYXMgd2VsbCBhcyBob3VzZWhvbGRzDQogICAgICAgIC0gbm93IHdlIGhhdmUgZXNzZW50aWFsbHkgdHdvIGhpc3RvZ3JhbXMgd2FudCB0byBzaG93DQogICAgICAgICAgICAtIGNhbiBkcmF3IGhpc3RvZ3JhbSBmb3IgYW55IGNlbnN1cyBibG9jaw0KICAgICAgICAgICAgLSBjYW4gZWl0aGVyIHBsb3QgaGlzdG9ncmFtIHNpZGUgYnkgc2lkZQ0KICAgICAgICAgICAgLSBsb29rIGF0IGhpc3RvZ3JhbXMsIHNlZSB3aGF0J3MgdGhlcmUuIElmIHlvdSBzZWUgb3RoZXIgY2hhcmFjdGVyaXN0aWNzLCBpdCB3aWxsIGdpdmUgeW91IGEgcGVyc3BlY3RpdmUgb2YgYXBwcm9hY2ggIA0KLSBDb21wYXJlIHZpc3VhbGx5LCBwdWxsIGRhdGEgb2YgYnJlYWtkb3duIHRoaW5ncyB0aGVuIHNlZSBob3cgdGhleSBhcmUgZGlmZmVyZW50DQoNCg0KQjE5MDEzQV8wMDENCkIxOTAxM0JfMDAxDQoibWVkaWFuX2luYyI9IkIwNjAxMV8wMDEiDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg0KDQoNCg==</div>
 
 
 
