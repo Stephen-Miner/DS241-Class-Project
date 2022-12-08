@@ -31,66 +31,35 @@ library(rgdal)
 library(sp)
 ```
 
-## read spacial data
-```{r}
-neigh=st_read(here("analysis", "DC_Health_Planning_Neighborhoods_joey.geojson")) %>% clean_names()
-class(neigh)
-```
 
-## loading census data
+##attempt 4
 ```{r}
 census_api_key("d44395e2fa101f82260fae6b845676d71f017b70")
 
-#what variables
-v20 = load_variables(2018,"acs5")
-# median_family_income="	B06011_001" 
-# all "B00001_001"	
-#black "B02009_001"
-#---------------------------------------------------------------
-df_cencus=get_acs(geography = "tract",
-                  variables=c("median_inc"="B06011_001",
-                              "pop"="B01001_001"),
-                  state="DC",geometry=TRUE,year=2018) 
-#---------------------------------------------------------------
-df_cens=df_cencus %>% select(-moe) %>% spread(variable,estimate)
-df_cens_adj=df_cens %>% st_transform(4326)
-#---------------------------------------------------------------
-df_j=st_join(df_cens_adj,neigh,largest=TRUE)
-#---------------------------------------------------------------
-df1=df_j %>% select(median_inc,pop,objectid) %>%
-  group_by(objectid) %>%
-  summarise(pop_n=sum(pop),
-            adj_median_income=sum(pop*median_inc)/pop_n) 
-#---------------------------------------------------------------
-df2=left_join(neigh,df1 %>% st_set_geometry(NULL))
+census=get_acs(geography = "tract",
+               variables = c("pop"="B01001_001"),
+               state="DC", geometry = TRUE,year=2019)
 
-#tm_shape(df_cens_adj)+tm_polygons()
-```
-WORK WITH df_cens_adj
-## Bike Data
-```{r}
-bike_data <- read_csv("202209-capitalbikeshare-tripdata.csv") %>% clean_names()
-#---------------------------------------------------------------
-bike_data_sf <- bike_data %>%
-  mutate_at(vars(start_lat, start_lng), as.numeric) %>%
-  st_as_sf(
-    coords = c("start_lat", "start_lng"), 
-    agr = "constant",
-    crs = "4326"
-  ) %>%
-  rename(startpoint=geometry) %>%
-  sample_n(1000)
-#---------------------------------------------------------------
-st_crs(bike_data_sf) <- 4326
+census_wide = census %>% select(-moe) %>% spread(variable, estimate) %>%
+  select(GEOID, pop, geometry) %>% st_transform(4326)
 ```
 ```{r}
-bike_data_sf_1 <- bike_data_sf %>%
-  select(geometry) %>%
-  rename(geom_points = geometry)
+bikeshare = read_csv("202209-capitalbikeshare-tripdata.csv") %>% clean_names()
 
-neigh_1 <- neigh %>%
-  select(geometry)
+bikeshare_start = bikeshare %>% select(member_casual, start_lng, start_lat) %>% st_as_sf(coords=c("start_lng","start_lat"), crs=st_crs(census_wide))
 
-df_full = st_join(bike_data_sf_1, neigh_1, join = st_within)
+bikeshare_start_member = bikeshare_start %>% filter(member_casual == "member")
+
+bikeshare_start_casual = bikeshare_start %>% filter(member_casual == "casual")
+
+bike_census = census_wide %>% mutate(start_count_member = lengths(st_intersects(., bikeshare_start_member)))
+
+bike_census = bike_census %>% mutate(start_count_casual = lengths(st_intersects(., bikeshare_start_casual)))
+```
+
+#plot
+```{r}
+tmap_mode("view")
+tm_shape(bike_census) + tm_polygons(c("start_count_member","start_count_casual"))
 ```
 
