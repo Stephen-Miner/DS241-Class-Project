@@ -51,7 +51,7 @@ haversine <- function(long1, lat1, long2, lat2, round = 3) {
 }
 ```
 
-Just doing a sample for a Monday, this is for September 5, 2022, the first Monday of the month.
+Making data fram for bikeshare start and endpoints as well as the metro station locations.
 ```{r}
 bikeshare1 = bikeshare %>% select(ride_id, slat = start_lat, slng = start_lng) %>% na.omit() 
 bikeshare1_end = bikeshare %>% select(ride_id, elat = end_lat, elng = end_lng) %>% na.omit() 
@@ -59,8 +59,7 @@ metro_stations1 = metro_stations %>% select(end_station_name = name, lat = y, ln
 ```
 
 https://stackoverflow.com/questions/58831578/minimum-distance-between-lat-long-across-multiple-data-frames
-Finds the closest station to bikes endpoint, adds station name and distance to the bikshare dataframe.
-
+Finds the closest station to bikes start point, adds station name and distance to the bikshare dataframe.
 ```{r}
 #calculate the distance matrix
 distmatrix<-distm(bikeshare1[, c(3, 2)], metro_stations1[,c(3, 2)])
@@ -70,19 +69,21 @@ bikeshare1$close_station <- as.character(metro_stations1$end_station_name[closes
 bikeshare1$distance <- apply(distmatrix, 1, min)/1000
 ```
 
-Counts the amount of bikes parked within 0.1524/500ft, close enough to consider bike being used for final mile.
+Refines dataframe to be the bikes that started within 0.1524/500ft of a station, close enough to consider bike being used for final mile. The end points associated with the start points that are less than 500 feet from a metro station are then joined with the final_mile dataframe.
 ```{r}
 final_mile = bikeshare1 %>% filter(distance < 0.1524) 
 new = left_join(final_mile, bikeshare1_end, by = "ride_id")
-end_points = new %>% st_as_sf(new, coords = c("elng", "elat"),crs = st_crs(4326), na.fail = FALSE, dim = "end_point")
 ```
 
+Calculates the distance from start to end of bikes that started within 500 feet of a metro station. It then filters it so only the rides that are less than a mile are kept. The final_mile1_start_cnt dataframe is then turned into an sf object with the elat and elng turned into a point geometry.
 ```{r}
 final_mile1 = new %>% mutate(start_to_end = haversine(slng, slat, elng, elat))
-final_mile1_start_cnt = final_mile1 %>% filter(start_to_end <= 1.60934 & start_to_end != 0) %>% select(ride_id, close_station, distance, start_to_end, elng, elat)
+final_mile1_start_cnt = final_mile1 %>% filter(start_to_end <= 1.60934 & start_to_end != 0) %>% 
+  select(ride_id, close_station, distance, start_to_end, elng, elat)
+end_points = st_as_sf(final_mile1_start_cnt, coords = c("elng", "elat"), crs = 4326, na.fail = FALSE)
 ```
 
-Make all of the data frames that we'll use for analysis.
+Other dataframes for other analysis.
 ```{r}
 final_mile1_grouped = final_mile1_start_cnt %>% group_by(close_station) %>% 
   summarise(count = n(), avg_distance_to_bikeshare = mean(distance), 
@@ -92,15 +93,9 @@ metro_stations_sf = metro_stations = geojson_sf(here("data_raw", "dc_metro_stati
   clean_names() %>% select(close_station = name, metro_location = geometry)
 final_mile1_geo = left_join(final_mile1_grouped, metro_stations_sf, by="close_station")
 final_mile1_geo = st_as_sf(x = final_mile1_geo, crs = st_crs(metro_stations_sf))
-final_test = final_mile1_start_cnt %>% left_join(bikeshare1_end, by = "ride_id")
 ```
 
-
-* Analyze grouped data frame through distributions and comparing counts and average distances - Tyler.
-* Visualizations: lines from start to end point for final mile rides, density distributions from above - Tyler.
-* Join LODES job data with bikeshare end points that fall within final mile category - see if areas with more jobs also have more final mile rides - Joseph.
-* Calculate proportion of rides within 500 ft of a station that are final mile rides - Minsum.
-
+Grabbing LODES/census data
 ```{r}
 census_api_key("4c7e5b613afdf7d2fd6d80005f53282c9a7c1bae")
 v20 = load_variables(2019,"acs5",cache=TRUE)
@@ -119,24 +114,26 @@ df_c=df_cens %>% left_join(dc_wac,by=c("geoid"="w_tract"))
 ```
 
 
+Combining bikeshare and LODES data. df_c3 adds a counts column, this column shows the number of bikerides that ended in each polygon(neighborhood).
 ```{r}
 count_at_point = final_mile1_geo %>% select(count, metro_location)
 df_c2 = df_c %>% select(total_workers = C000) %>%
   st_transform(df_c, crs = 4326)
-workers_and_rides = st_join(df_c2, count_at_point)
-workers_and_rides[is.na(workers_and_rides)] = 0
+df_c3 = df_c2 %>% 
+  mutate(counts = lengths(st_intersects(df_c2$geometry, end_points$geometry)))
 ```
 
+Visualization of ride endpoints and workers
 ```{r}
-workers_and_rides %>% select(total_workers, ride_count = count) %>%
+df_c3 %>% select(total_workers, ride_count = counts) %>%
   tm_shape() + tm_polygons(c("total_workers", "ride_count"), alpha = 0.4) + tmap_mode("view")
-
 ```
 
+Ratio of ride endpoints and workers
 ```{r}
-df_ratio = workers_and_rides %>% #renames while selecting
-  mutate(ratio=count/total_workers)
-  df_ratio%>%
+df_ratio = df_c3 %>% 
+  mutate(ratio=counts/total_workers)
+  df_ratio %>%
   tm_shape()+tm_polygons(c("ratio"),alpha=.4) + tmap_mode("view")
 ```
 
