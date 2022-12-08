@@ -16,6 +16,7 @@ library(tmap)
 library(tidycensus)
 library(plotly)
 library(ggforce)
+library(tigris)
 ```
 
 
@@ -23,6 +24,34 @@ library(ggforce)
 census_api_key("260b47c83abf4017c26b5022527d1558744b41cf", overwrite = TRUE)
 v20 = load_variables(2018,"acs5")
 ```
+```{r}
+df_census_3=get_acs(geography = "tract",
+                  variables=c("median_income" = "B19013_001"),
+                  state="DC",geometry=TRUE,year=2018) 
+df_cens=df_census %>% select(-moe) %>% spread(variable,estimate) 
+```
+```{r}
+bikeshare <- read_csv(here("data_raw", "202209-capitalbikeshare-tripdata.zip"))
+```
+```{r}
+median_inc <- df_census_3 %>% select(1,4,6)
+bikeshare_start <- bikeshare %>% select(6,9,10)
+```
+
+```{r}
+neigh = st_read(here("data_raw","dc_neigh.geojson")) %>% clean_names()
+```
+```{r}
+bikeshare_start_join = st_join(bikeshare_start,neigh,largest=TRUE)
+```
+
+
+
+```{r}
+
+```
+
+
 
 ```{r}
 tmap_mode("view")
@@ -47,12 +76,32 @@ df_census=get_acs(geography = "tract",
                   state="DC",geometry=TRUE,year=2018) 
 df_cens=df_census %>% select(-moe) %>% spread(variable,estimate) 
 ```
+```{r}
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 1)
+```
+
 
 ```{r}
-n_pages <- 20 
-for (i in seq_len(n_pages)) {
-  ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = i)
-}
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 1)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 2)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 3)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 4)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 5)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 6)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 7)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 8)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 9)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 10)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 11)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 12)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 13)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 14)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 15)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 16)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 17)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 18)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 19)
+ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 20)
 ```
 
 ```{r}
