@@ -50,16 +50,24 @@ bikeshare_start = bikeshare %>% select(member_casual, start_lng, start_lat) %>% 
 
 bikeshare_start_member = bikeshare_start %>% filter(member_casual == "member")
 
+tot_member = nrow(bikeshare_start_member)
+
 bikeshare_start_casual = bikeshare_start %>% filter(member_casual == "casual")
 
-bike_census = census_wide %>% mutate(start_count_member = lengths(st_intersects(., bikeshare_start_member)))
+tot_casual = nrow(bikeshare_start_casual)
 
-bike_census = bike_census %>% mutate(start_count_casual = lengths(st_intersects(., bikeshare_start_casual)))
+bike_census = census_wide %>% mutate(start_count_member = lengths(st_intersects(., bikeshare_start_member))) %>% mutate(start_count_member_perc = start_count_member/tot_member)
+
+bike_census = bike_census %>% mutate(start_count_casual = lengths(st_intersects(., bikeshare_start_casual))) %>% mutate(start_count_casual_perc = start_count_casual/tot_casual)
+```
+```{r}
+tot_casual
+tot_member
 ```
 
 #plot
 ```{r}
 tmap_mode("view")
-tm_shape(bike_census) + tm_polygons(c("start_count_member","start_count_casual"))
+tm_shape(bike_census) + tm_polygons(c("start_count_member_perc","start_count_casual_perc"))
 ```
 
