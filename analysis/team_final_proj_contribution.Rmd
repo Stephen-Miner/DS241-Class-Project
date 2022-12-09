@@ -1,0 +1,35 @@
+---
+title: "Team Contribution"
+output: html_notebook
+---
+
+##Joey:
+
+General responsibilities:
+- check over code
+- make sure everything runs properly when each person adds their code
+- main person fixing errors in code
+
+Coding contribution:
+- Lines 55-79, 108-124, 125-141
+
+##Sarah:
+
+General responsibilities:
+- keep track of what we have done and what still needs to be done
+- explain within project document (using comments) what each section of code means
+- write out analysis paragraphs showing observations and conclusions
+
+Coding contribution:
+- Lines 1-37, 80-100, 147-158
+
+##Michael:
+
+General responsibilities:
+- math/analysis portion of the project
+- make sure all numbers calculated make logical sense before moving forward
+- google example code that we can possibly use
+
+Coding contribution:
+- Lines 38-54, 101-107, 142-146
+

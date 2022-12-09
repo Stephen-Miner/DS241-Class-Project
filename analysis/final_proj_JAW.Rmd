@@ -7,9 +7,10 @@ output: html_notebook
 ---
 
 ##Website used to compare where the "touristy" areas are = https://www.flickr.com/photos/walkingsf/4672195208
-##Blue dots represent where pictures are taken by locals
-##Red dots represent where pictures are taken by tourists
-##Yellow dots could be from either
+
+- Blue dots represent where pictures are taken by locals
+- Red dots represent where pictures are taken by tourists
+- Yellow dots could be from either
 
 ## Install lehdr
 Run this code only once.
@@ -122,7 +123,7 @@ boxp[,'long_linc'] = linc_long
 boxp2 <- left_join(boxp, boxp1, by = 'member_casual') %>% sample_n(1000)
 ```
 
-## Using haversine
+## Using haversine function - from Coach Skufca
 ```{r}
 haversine <- function(long1, lat1, long2, lat2, round = 3) {
   # convert to radians
