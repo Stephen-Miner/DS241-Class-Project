@@ -1,1 +1,125 @@
+---
+title: "Final Mile - proportion of rides"
+author: "Minsun Kim"
+date: "12/4/2022"
+output: html_document
+---
+
+Load pacakages
+```{r}
+library(tidyverse)
+library(here)
+library(janitor)
+library(lubridate)
+library(sf)
+library(tmap)
+library(geojsonsf)
+library(matrixStats)
+library(geosphere)
+bikeshare = read_csv(here("data_raw", "202209-capitalbikeshare-tripdata.zip")) %>%
+  clean_names() %>% mutate(start_station_name = case_when(
+    start_station_name == "11th & V st NW" ~ "11th & V St NW",
+    TRUE ~ start_station_name
+  ), end_station_name = case_when(
+    end_station_name == "11th & V st NW" ~ "11th & V St NW",
+    TRUE ~ end_station_name
+  ))
+metro_stations = read_csv(here("data_raw", "Metro_Stations_in_DC.csv")) %>%
+  clean_names()
+```
+
+NOTE: 
+1.the following several code chunks are copied directly from FinalMileOriginal.Rmd and FinalMile_Stations.Rmd(which is from Yankee).
+2. In order not to confuse the source of the data, the variable names were defined differently so that the bikeshare station and the metro station could be clearly distinguished.
+
+Define the Haversine distance function so we can compute distance between things
+```{r}
+# This function takes five arguments:
+# 
+# Longitude and latitude of the first location
+# Longitude and latitude of the second location
+# A parameter by which to round the responses
+
+haversine <- function(long1, lat1, long2, lat2, round = 3) {
+  # convert to radians
+  long1 = long1 * pi / 180
+  lat1  = lat1  * pi / 180
+  long2 = long2 * pi / 180
+  lat2  = lat2  * pi / 180
+  
+  R = 6371 # Earth mean radius in km
+  
+  a = sin((lat2 - lat1)/2)^2 + cos(lat1) * cos(lat2) * sin((long2 - long1)/2)^2
+  d = R * 2 * asin(sqrt(a))
+  
+  return( round(d,round) ) # distance in km
+}
+```
+
+Just doing a sample for a Monday, this is for September 5, 2022, the first Monday of the month.
+```{r}
+bikeshare1 = bikeshare %>% select(ride_id, slat = start_lat, slng = start_lng) %>% na.omit() 
+#end_station_name -> end_metro_staion_name
+metro_stations1 = metro_stations %>% select(end_metro_station_name = name, lat = y, lng = x) %>% na.omit()
+```
+
+https://stackoverflow.com/questions/58831578/minimum-distance-between-lat-long-across-multiple-data-frames
+Finds the closest metro station to bikes endpoint, adds metro station name and distance to the bikshare dataframe.
+```{r}
+#calculate the distance matrix
+distmatrix<-distm(bikeshare1[, c(3, 2)], metro_stations1[,c(3, 2)])
+#find closest column and get distance
+closest<-apply(distmatrix, 1, which.min)
+bikeshare1$close_station <- as.character(metro_stations1$end_metro_station_name[closest])
+bikeshare1$distance <- apply(distmatrix, 1, min)/1000
+```
+
+Counts the amount of bikes parked within 0.1524/500ft, close enough to consider bike being used for final mile.
+```{r}
+final_mile = bikeshare1 %>% filter(distance < 0.1524) 
+bikeshare_end = bikeshare %>% select(ride_id, elat = end_lat, elng = end_lng)
+new = left_join(final_mile, bikeshare_end, by = "ride_id")
+```
+
+```{r}
+final_mile1 = new %>% mutate(start_to_end = haversine(slng, slat, elng, elat))
+final_mile1 = final_mile1 %>% filter(start_to_end <= 1.60934 & start_to_end != 0) %>% select(ride_id, close_station, distance, start_to_end)
+```
+
+Make the data frames that we'll use for analysis.
+```{r}
+final_mile1_grouped = final_mile1 %>% group_by(close_station) %>% 
+  summarise(count = n(), avg_distance_to_bikeshare = mean(distance), 
+            avg_ride_distance = mean(start_to_end))
+```
+
+New analyze start
+Goal : Calculate proportion of rides within 500 ft of a station that are final mile rides
+
+Get a ride which rides are not limited by 1 mile (original data) and group by close station, make a one data frame.
+```{r}
+final_mile2 = new %>% mutate(start_to_end = haversine(slng, slat, elng, elat))
+final_mile2 = final_mile2 %>% filter(start_to_end != 0) %>% select(ride_id, close_station, distance, start_to_end)
+final_mile2_grouped = final_mile2 %>% group_by(close_station) %>% 
+  summarise(count = n(), avg_distance_to_bikeshare = mean(distance), 
+            avg_ride_distance = mean(start_to_end))
+final_mile3 = full_join(final_mile1_grouped, final_mile2_grouped, by="close_station")
+final_mile3 <- final_mile3 %>% mutate(proportion = count.x/count.y)
+```
+
+Visualize for the proportion of final mile rides which is less than 1 mile grouped by close station
+```{r}
+final_mile3 %>% ggplot(aes(x=reorder(close_station,-proportion))) + 
+  geom_bar(aes(weight=proportion)) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+  labs(title = "the proportion of final mile rides which is less than 1 mile", 
+       x = "Metro Station", 
+       y = "Proportion of Final Mile Rides",
+       caption = "Sample of bikeshare data is from September 2022.") +
+  scale_x_discrete(label = function(x) stringr::str_trunc(x, 20))
+```
+If proportion is close to 1, that means the majority of people after getting of metro use bikeshare system to make up 'the remainder of their commute'(Final miles). Farragut West have the highest proportion(almost close to 1), that means almost all of people who arrive this station use bikeshare as their remainder of commute. Another metros's proportion are usually between 0.25~0.75.
+*NoMa-Gallaudet U's proportion is 0, I saw the data about this metro and I found this metro have not data for final mile(rides less than 1 mile), but have only one observation which ride is more than 1 mile(not Final mile).
+
+
 
