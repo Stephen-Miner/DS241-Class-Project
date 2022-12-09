@@ -78,16 +78,17 @@ linc_long <- -77.0502
 linc_lat <- 38.8893
 linc <- data.frame(linc_lat,linc_long) 
 ```
+
 ## link linc with bike data
 ```{r}
-boxp <- bikeshare_start %>% rename(point_start = geometry) %>% mutate(lat_linc = point_start) %>% mutate(long_linc = lat_linc)
+boxp1 <- bikeshare %>% select(member_casual, start_lng, start_lat) %>% sample_n(1000)
+
+boxp <- boxp1 %>% mutate(lat_linc = start_lng) %>% mutate(long_linc = lat_linc) %>% sample_n(1000) %>% select(lat_linc, long_linc, member_casual)
 
 boxp[,'lat_linc'] = linc_lat
 boxp[,'long_linc'] = linc_long
 
-boxp1 <- bikeshare %>% select(member_casual, start_lng, start_lat)
-
-boxp2 <- full_join(boxp, boxp1, by = 'member_casual')
+boxp2 <- left_join(boxp, boxp1, by = 'member_casual') %>% sample_n(1000)
 ```
 
 ## haversine
@@ -110,6 +111,13 @@ haversine <- function(long1, lat1, long2, lat2, round = 3) {
 
 ## distance from linc
 ```{r}
-linc_dist <- bikeshare_start %>% mutate(distance = haversine(geometry, linc_latlong, round = 4))
+linc_dist <- boxp2 %>% mutate(distance = haversine(start_lng, start_lat, long_linc, lat_linc, round = 4))
+```
+
+## boxplot
+```{r}
+df <- linc_dist %>% select(distance, member_casual) %>% filter(distance < 10)
+ggplot(data = df)+
+  geom_boxplot(aes(x= member_casual, y = distance)) + facet_wrap(~member_casual)
 ```
 
