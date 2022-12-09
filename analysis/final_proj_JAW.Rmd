@@ -33,17 +33,27 @@ library(dsbox)
 ```
 
 
-##attempt 4
+## Downloading Census Data
+Key points
+-downloading basic census data with the geography and population of DC in 2021
+-turn census data wide to get population data as a column
 ```{r}
 census_api_key("d44395e2fa101f82260fae6b845676d71f017b70")
 
 census=get_acs(geography = "tract",
                variables = c("pop"="B01001_001"),
-               state="DC", geometry = TRUE,year=2019)
+               state="DC", geometry = TRUE,year=2021)
 
 census_wide = census %>% select(-moe) %>% spread(variable, estimate) %>%
   select(GEOID, pop, geometry) %>% st_transform(4326)
 ```
+
+## Downloading Bike Data
+Key points
+-reading bike data from 2021
+-selecting member status, start latitude and longitude, making latitude and longitude geospacial data
+-create data sets for casual vs member riders
+- create one data set where member and casual variables have a row each, find percentages of riders in each polygon
 ```{r}
 bikeshare = read_csv("202209-capitalbikeshare-tripdata.csv") %>% clean_names()
 
@@ -66,24 +76,28 @@ tot_casual
 tot_member
 ```
 
-#plot
+# Plot Our Data
 ```{r}
 tmap_mode("view")
 tm_shape(bike_census) + tm_polygons(c("start_count_member_perc","start_count_casual_perc"))
 ```
 
-##lincoln mon
+## Lincoln Monument Coordinates
 ```{r}
 linc_long <- -77.0502
 linc_lat <- 38.8893
 linc <- data.frame(linc_lat,linc_long) 
 ```
 
-## link linc with bike data
+## Link Lincoln monument data with bike data
+Key Points
+-take bikeshare data and select status and coordinates
+-create a data set for the Lincoln monument data
+-join these data sets so we can do calculations on the two
 ```{r}
 boxp1 <- bikeshare %>% select(member_casual, start_lng, start_lat) %>% sample_n(1000)
 
-boxp <- boxp1 %>% mutate(lat_linc = start_lng) %>% mutate(long_linc = lat_linc) %>% sample_n(1000) %>% select(lat_linc, long_linc, member_casual)
+boxp <- boxp1 %>% mutate(lat_linc = start_lng) %>% mutate(long_linc = lat_linc) %>% select(lat_linc, long_linc, member_casual) %>% sample_n(1000)
 
 boxp[,'lat_linc'] = linc_lat
 boxp[,'long_linc'] = linc_long
