@@ -1,11 +1,15 @@
 ---
-title: "Member versus Casual"
+title: "Member versus Casual Final Project"
+question: "Is there a spatial pattern driven by members vs. casual riders?"
 date:  "2022-12-2"
-author: "Joseph White"
+authors: "Joseph White, Sarah Kohls, Michael Lanfear"
 output: html_notebook
 ---
 
-This notebooks will try to use the `lehdr` package to get at detailed demographic data
+##Website used to compare where the "touristy" areas are = https://www.flickr.com/photos/walkingsf/4672195208
+##Blue dots represent where pictures are taken by locals
+##Red dots represent where pictures are taken by tourists
+##Yellow dots could be from either
 
 ## Install lehdr
 Run this code only once.
@@ -18,9 +22,9 @@ Run this code only once.
 library(knitr)
 library(tidyverse)
 library(janitor)
-library(lubridate) # because we will probably see some dates
-library(here) # a package I haven't taught you about before that doesn't do much, but ....
-library(sf) # working with simple features - geospatial
+library(lubridate)
+library(here) 
+library(sf) 
 library(tmap)
 library(tidycensus)
 library(lehdr)
@@ -35,8 +39,9 @@ library(dsbox)
 
 ## Downloading Census Data
 Key points
--downloading basic census data with the geography and population of DC in 2021
--turn census data wide to get population data as a column
+-Downloading basic census data with the geography and population of DC in 2021
+-Turn census data wide to get population data as a column
+
 ```{r}
 census_api_key("d44395e2fa101f82260fae6b845676d71f017b70")
 
@@ -50,10 +55,11 @@ census_wide = census %>% select(-moe) %>% spread(variable, estimate) %>%
 
 ## Downloading Bike Data
 Key points
--reading bike data from 2021
--selecting member status, start latitude and longitude, making latitude and longitude geospacial data
--create data sets for casual vs member riders
-- create one data set where member and casual variables have a row each, find percentages of riders in each polygon
+-Reading bike data from 2021
+-Selecting member status, start latitude and longitude, making latitude and longitude geospacial data
+-Create data sets for casual vs member riders
+-Create one data set where member and casual variables have a row each, find percentages of riders in each polygon
+
 ```{r}
 bikeshare = read_csv("202209-capitalbikeshare-tripdata.csv") %>% clean_names()
 
@@ -82,6 +88,16 @@ tmap_mode("view")
 tm_shape(bike_census) + tm_polygons(c("start_count_member_perc","start_count_casual_perc"))
 ```
 
+##Observations
+
+From looking at the graphs above, you can see that casual riders (which are usually tourists), are riding way more 
+often in area "11001980000" which is where all the tourist attractions and sight-seeing places are. 
+
+However the member percentage is more spread out into other parts of D.C. because these are local people using the bike
+share program to get to and from work, or go about their daily activities.
+
+Our hypothesis that the spatial pattern of members vs causal riders would show casual riders more condensed in one area was correct. 
+
 ## Lincoln Monument Coordinates
 ```{r}
 linc_long <- -77.0502
@@ -91,9 +107,10 @@ linc <- data.frame(linc_lat,linc_long)
 
 ## Link Lincoln monument data with bike data
 Key Points
--take bikeshare data and select status and coordinates
--create a data set for the Lincoln monument data
--join these data sets so we can do calculations on the two
+-Take bikeshare data and select status and coordinates
+-Create a data set for the Lincoln monument data
+-Join these data sets so we can do calculations on the two
+
 ```{r}
 boxp1 <- bikeshare %>% select(member_casual, start_lng, start_lat) %>% sample_n(1000)
 
@@ -105,7 +122,7 @@ boxp[,'long_linc'] = linc_long
 boxp2 <- left_join(boxp, boxp1, by = 'member_casual') %>% sample_n(1000)
 ```
 
-## haversine
+## Using haversine
 ```{r}
 haversine <- function(long1, lat1, long2, lat2, round = 3) {
   # convert to radians
@@ -123,15 +140,20 @@ haversine <- function(long1, lat1, long2, lat2, round = 3) {
 }
 ```
 
-## distance from linc
+## Distance from Lincoln Memorial
 ```{r}
 linc_dist <- boxp2 %>% mutate(distance = haversine(start_lng, start_lat, long_linc, lat_linc, round = 4))
 ```
 
-## boxplot
+## Boxplot
 ```{r}
 df <- linc_dist %>% select(distance, member_casual) %>% filter(distance < 10)
 ggplot(data = df)+
   geom_boxplot(aes(x= member_casual, y = distance)) + facet_wrap(~member_casual)
 ```
+
+##Boxplot Observations
+
+This further proves the analysis gotten from the graphs above. The "distance" label describes the distance between the bike ride taken from the Lincoln Memorial. We found the distance relative to the Lincoln Memorial because it is in the touristy area, so in theory the causal riders should have closer distances to the memorial than the members. This is shown in the box and whisker plot above. Also you can see that there are more instances of member bike rides being much further away from the memorial.  
+
 
