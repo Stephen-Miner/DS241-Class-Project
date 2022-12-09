@@ -2,7 +2,12 @@
 title: "Group 3 Project"
 output: html_notebook
 ---
+The question proposed is the following: Do "rich" neighborhoods bike-share differently than poor?
 
+In order to do so, census data and bikeshare data are used. To access census data, an api key is needed.
+This can be obtained by visiting https://api.census.gov/data/key_signup.html 
+
+## Loading Packages
 ```{r}
 library(lehdr)
 library(dplyr)
@@ -17,9 +22,10 @@ library(tidycensus)
 library(plotly)
 library(ggforce)
 library(tigris)
+library(forcats)
 ```
 
-
+## Census Data Available
 ```{r}
 census_api_key("260b47c83abf4017c26b5022527d1558744b41cf", overwrite = TRUE)
 v20 = load_variables(2018,"acs5")
@@ -76,32 +82,105 @@ df_census=get_acs(geography = "tract",
                   state="DC",geometry=TRUE,year=2018) 
 df_cens=df_census %>% select(-moe) %>% spread(variable,estimate) 
 ```
+
+## Reording Mapping 
+We create a mapping to reorder the income brackets from lowest (under 10,000) to highest (200,000 or more). n total, there are 16 different income brackets. 
 ```{r}
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 1)
+df_census_2 = df_census %>% mutate(order = case_when(
+    variable == "under_10000" ~ 1, 
+    variable == "10000_to_14999" ~ 2, 
+    variable == "15000_to_19999" ~ 3,
+    variable == "20000_to_24999" ~ 4,
+    variable == "25000_to_29999" ~ 5,
+    variable == "30000_to_34999" ~ 6,
+    variable == "35000_to_39999" ~ 7,
+    variable == "40000_to_44999" ~ 8,
+    variable == "45000_to_49999" ~ 9,
+    variable == "50000_to_59999" ~ 10,
+    variable == "60000_to_74999" ~ 11,
+    variable == "75000_to_99999" ~ 12,
+    variable == "100000_to_124999" ~ 13,
+    variable == "125000_to_149999" ~ 14,
+    variable == "150000_to_199999" ~ 15,
+    variable == "200000_or_more" ~ 16,))
 ```
 
 
+## Classifying Bikeshare Data into Block Groups 
 ```{r}
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+ facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 1)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 2)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 3)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 4)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 5)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 6)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 7)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 8)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 9)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 10)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 11)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 12)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 13)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 14)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 15)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 16)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 17)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 18)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 19)
-ggplot(data=df_census, mapping=aes(x=variable)) + geom_bar(aes(weight=estimate)) + facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = 20)
+#library(sf)
+
+#bikeshare_5 <- bikeshare %>% select(9,10)
+
+#ca <- tidycensus::get_acs(state = "DC", geography = "block group",
+#              variables = "B19013_001", geometry = TRUE)
+
+#bikeshare_5 = bikeshare_5 %>%  st_as_sf(coords = c("start_lng", "start_lat"),crs = st_crs(ca))
+#bikeshare_5$tract <- as.numeric(st_within(bikeshare_5, ca)) # this is fast for 1e6 points
+
+
+#head(bikeshare_5) # tract is the row-index for overlapping census tract record in 'ca'
+
+# but part would take forever with 1e6 points
+#library(ggplot2)
+
+#ggplot(ca) +
+#  geom_sf() +
+#  geom_sf(data = bikeshare_5, aes(color = is.na(tract)))
+
+## -------------- https://stackoverflow.com/questions/52248394/get-census-tract-from-lat-lon-using-tigris
+
+library(tigris)
+library(tidyverse)
+library(sf)
+
+ca_tracts <- tracts("DC", class = "sf") %>%
+  select(GEOID, TRACTCE)
+
+bbox <- st_bbox(ca_tracts)
+
+my_points_tract <- st_join(bikeshare_5, ca_tracts) 
+my_points_tract_revised <- na.omit(my_points_tract)
+
+```
+
+## Function for Visualizing Income Data
+We create a function pointing to a ggplot with the arguments graph_number. This argument can take the value from 1 to 20. Each page refers to a different grouping of 9 graphs. 
+```{r}
+make_graphs <- function(graph_number){
+    ggplot(data=df_census_2, mapping=aes(x= fct_reorder(variable, order, .desc = FALSE))) +
+        geom_bar(aes(weight=estimate), fill="navyblue") + 
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+        facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = graph_number) + 
+        xlab("Income Range, increasing") +
+        ylab("Number of People")+
+        ggtitle("Count per Income Bracket in DC Census Region")
+}
+```
+
+## Visualizing Graph Data
+We call the function on numbers 1 - 20 for 20 pages of 9 graphs each. 
+```{r}
+make_graphs(1)
+make_graphs(2)
+make_graphs(3)
+make_graphs(4)
+make_graphs(5)
+make_graphs(6)
+make_graphs(7)
+make_graphs(8)
+make_graphs(9)
+make_graphs(10)
+make_graphs(11)
+make_graphs(12)
+make_graphs(13)
+make_graphs(14)
+make_graphs(15)
+make_graphs(16)
+make_graphs(17)
+make_graphs(18)
+make_graphs(19)
+make_graphs(20)
 ```
 
 ```{r}
