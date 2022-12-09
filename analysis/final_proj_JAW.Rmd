@@ -29,6 +29,7 @@ library(WDI)
 library(tigris)
 library(rgdal)
 library(sp)
+library(dsbox)
 ```
 
 
@@ -69,5 +70,46 @@ tot_member
 ```{r}
 tmap_mode("view")
 tm_shape(bike_census) + tm_polygons(c("start_count_member_perc","start_count_casual_perc"))
+```
+
+##lincoln mon
+```{r}
+linc_long <- -77.0502
+linc_lat <- 38.8893
+linc <- data.frame(linc_lat,linc_long) 
+```
+## link linc with bike data
+```{r}
+boxp <- bikeshare_start %>% rename(point_start = geometry) %>% mutate(lat_linc = point_start) %>% mutate(long_linc = lat_linc)
+
+boxp[,'lat_linc'] = linc_lat
+boxp[,'long_linc'] = linc_long
+
+boxp1 <- bikeshare %>% select(member_casual, start_lng, start_lat)
+
+boxp2 <- full_join(boxp, boxp1, by = 'member_casual')
+```
+
+## haversine
+```{r}
+haversine <- function(long1, lat1, long2, lat2, round = 3) {
+  # convert to radians
+  long1 = long1 * pi / 180
+  lat1  = lat1  * pi / 180
+  long2 = long2 * pi / 180
+  lat2  = lat2  * pi / 180
+  
+  R = 6371 # Earth mean radius in km
+  
+  a = sin((lat2 - lat1)/2)^2 + cos(lat1) * cos(lat2) * sin((long2 - long1)/2)^2
+  d = R * 2 * asin(sqrt(a))
+  
+  return( round(d,round) ) # distance in km
+}
+```
+
+## distance from linc
+```{r}
+linc_dist <- bikeshare_start %>% mutate(distance = haversine(geometry, linc_latlong, round = 4))
 ```
 
