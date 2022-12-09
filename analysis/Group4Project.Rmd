@@ -11,27 +11,32 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(gbfs)
-library(taskscheduleR) #might be useful for running code every minute
 ```
+Do bikes ever completely run out at a station in the Capital Bikeshare?
 
-
+#Getting the Data
+Using get_station_status() from the gbfs package, we got the status of each station once per minute during a high-traffic time when the bikes are more likely to run out. 
 ```{r}
 #Code that runs about every minute to grab station info on chosen variables.
 i = 0
-filename= "U:/DS241-Class-Project/analysis/station_info.csv"
+#Replace file path to local machine path
+filename= "C:/Users/vvexi/OneDrive/Documents/R_Scripts/DS241-Class-Project/analysis/station_info.csv"
 
-headers = data.frame("station_id", "num_docks_available", "num_docks_disabled", "num_bikes_available",
-            "num_ebikes_available", "num_bikes_disabled", "total_bikes_available")
-write.table(headers, file = filename, append=TRUE, row.names = FALSE,
+headers = data.frame("station_id", "num_docks_available", "num_docks_disabled", 
+                     "num_bikes_available", "num_ebikes_available", 
+                     "num_bikes_disabled", "last_updated", 
+                     "total_bikes_available")
+write.table(headers, file = filename, row.names = FALSE,
             col.names = FALSE, sep = ",")
 
-while(i < 60) {
+while(i < 3) {
   print(paste("its been", i, "minutes since this started, give or take a bit"))
   i = i + 1
   
   station_status <- get_station_status("cabi") %>%
             select(station_id, num_docks_available, num_docks_disabled,
-            num_bikes_available, num_ebikes_available, num_bikes_disabled) %>%
+            num_bikes_available, num_ebikes_available, num_bikes_disabled, 
+            last_updated) %>%
         mutate(total_bikes_available = num_bikes_available + num_docks_available  
             + num_ebikes_available - num_docks_disabled - num_bikes_disabled )
 
@@ -44,10 +49,25 @@ write.table(station_status, file=filename, append=TRUE, row.names = FALSE,
 }
 ```
 
+We then read the csv we wrote to into a data frame.
 ```{r}
 thisfile=here("analysis" ,"station_info.csv")
 
-df1 = read_csv(thisfile) %>% clean_names()
+dfstations = read_csv(thisfile) %>% clean_names()
 ```
+#Analysis
+
+We wanted to look specifically at stations that were the closest to running out of bikes, so we wrote code to take the 10 stations that had the lowest average amount of bike available during the hour.
+
+```{r}
+avgbikes <- dfstations %>% group_by(station_id) %>% summarize(mean(total_bikes_available)) %>% clean_names() %>% slice_min(order_by = mean_total_bikes_available, n=10)
+```
+
+We took these 10 stations and plotted their number of available bikes at each minute of the hour to determine if there was one point in the hour where it seemed like multiple stations were running out, or to see if any of them even got close to running out.
+
+```{r}
+dfstations %>% filter(station_id %in% avgbikes$station_id) %>% ggplot(aes(last_updated, total_bikes_available)) + geom_point() + facet_wrap(~station_id)
+```
+
 
 
