@@ -55,3 +55,19 @@ while(i < 60) {
   Sys.sleep(60)
 }
 ```
+
+```{r}
+filename= "U:/DS241-Class-Project/analysis/test.csv"
+headers = data.frame("station_id", "num_docks_available", "num_docks_disabled", "num_bikes_available",
+            "num_ebikes_available", "num_bikes_disabled", "total_bikes_available")
+
+write.table(headers, file = filename, append=TRUE, row.names = FALSE,
+            col.names = FALSE, sep = ",")
+```
+
+```{r}
+thisfile=here("analysis" ,"test.csv")
+
+test = read_csv(thisfile) %>% clean_names()
+```
+

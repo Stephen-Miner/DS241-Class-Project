@@ -16,32 +16,38 @@ library(taskscheduleR) #might be useful for running code every minute
 
 
 ```{r}
-#code that runs every minute for an hour
-#problem with this code is that it doesn't account for the time it takes to do
-#The calculation
+#Code that runs about every minute to grab station info on chosen variables.
 i = 0
+filename= "U:/DS241-Class-Project/analysis/station_info.csv"
+
+headers = data.frame("station_id", "num_docks_available", "num_docks_disabled", "num_bikes_available",
+            "num_ebikes_available", "num_bikes_disabled", "total_bikes_available")
+write.table(headers, file = filename, append=TRUE, row.names = FALSE,
+            col.names = FALSE, sep = ",")
+
 while(i < 60) {
   print(paste("its been", i, "minutes since this started, give or take a bit"))
   i = i + 1
   
+  station_status <- get_station_status("cabi") %>%
+            select(station_id, num_docks_available, num_docks_disabled,
+            num_bikes_available, num_ebikes_available, num_bikes_disabled) %>%
+        mutate(total_bikes_available = num_bikes_available + num_docks_available  
+            + num_ebikes_available - num_docks_disabled - num_bikes_disabled )
+
+
+write.table(station_status, file=filename, append=TRUE, row.names = FALSE,
+            col.names = FALSE, sep = ",")
+
+
   Sys.sleep(60)
 }
 ```
 
 ```{r}
-script="U:/DS241-Class-Project/analysis/getstationstatus.R"
+thisfile=here("analysis" ,"station_info.csv")
 
-taskscheduler_create(taskname = "stationstatustask", 
-                     rscript = script, 
-                     schedule = "MINUTE", 
-                     starttime = "09:25")
-
+df1 = read_csv(thisfile) %>% clean_names()
 ```
 
-
-```{r}
-taskscheduler_stop(taskname)
-
-schtasks /Create /TN "getstationstatus.R" /TR "cmd /c C:/PROGRA~1/R/R-42~1.0/bin/Rscript.exe \"U:/DS241-Class-Project/analysis/getstationstatus.R\"  >> \"U:/DS241-Class-Project/analysis/getstationstatus.log\" 2>&1" /SC MINUTE /ST 09:39 /SD "07/12/2022"
-```
 

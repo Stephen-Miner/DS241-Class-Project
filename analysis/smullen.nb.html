@@ -1767,20 +1767,121 @@ pre code {
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShsZWhkcilcbmxpYnJhcnkoZHBseXIpXG5saWJyYXJ5KHN0cmluZ3IpXG5cbmxpYnJhcnkodGlkeXZlcnNlKVxubGlicmFyeShoZXJlKVxubGlicmFyeShqYW5pdG9yKVxubGlicmFyeShtYXBzKVxubGlicmFyeShsdWJyaWRhdGUpXG5saWJyYXJ5KGdiZnMpXG5cbmxpYnJhcnkodGFza3NjaGVkdWxlUikgI21pZ2h0IGJlIHVzZWZ1bCBmb3IgcnVubmluZyBjb2RlIGV2ZXJ5IG1pbnV0ZVxuYGBgIn0= -->
-<pre class="r"><code>library(lehdr)
-library(dplyr)
-library(stringr)
-
-library(tidyverse)
-library(here)
-library(janitor)
-library(maps)
-library(lubridate)
-library(gbfs)
-
-library(taskscheduleR) #might be useful for running code every minute</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShsZWhkcilcbmBgYCJ9 -->
+<pre class="r"><code>library(lehdr)</code></pre>
 <!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhsZWhkcuKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMi4yXG4ifQ== -->
+<pre><code>Warning: package ‘lehdr’ was built under R version 4.2.2</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShkcGx5cilcbmBgYCJ9 -->
+<pre class="r"><code>library(dplyr)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhkcGx5cuKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMi4xXG5cbkF0dGFjaGluZyBwYWNrYWdlOiDigJhkcGx5cuKAmVxuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6c3RhdHPigJk6XG5cbiAgICBmaWx0ZXIsIGxhZ1xuXG5UaGUgZm9sbG93aW5nIG9iamVjdHMgYXJlIG1hc2tlZCBmcm9tIOKAmHBhY2thZ2U6YmFzZeKAmTpcblxuICAgIGludGVyc2VjdCwgc2V0ZGlmZiwgc2V0ZXF1YWwsIHVuaW9uXG4ifQ== -->
+<pre><code>Warning: package ‘dplyr’ was built under R version 4.2.1
+
+Attaching package: ‘dplyr’
+
+The following objects are masked from ‘package:stats’:
+
+    filter, lag
+
+The following objects are masked from ‘package:base’:
+
+    intersect, setdiff, setequal, union</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShzdHJpbmdyKVxuYGBgIn0= -->
+<pre class="r"><code>library(stringr)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhzdHJpbmdy4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjFcbiJ9 -->
+<pre><code>Warning: package ‘stringr’ was built under R version 4.2.1</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0aWR5dmVyc2UpXG5gYGAifQ== -->
+<pre class="r"><code>library(tidyverse)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJh0aWR5dmVyc2XigJkgd2FzIGJ1aWx0IHVuZGVyIFIgdmVyc2lvbiA0LjIuMVxuUmVnaXN0ZXJlZCBTMyBtZXRob2RzIG92ZXJ3cml0dGVuIGJ5ICdkYnBseXInOlxuICBtZXRob2QgICAgICAgICBmcm9tXG4gIHByaW50LnRibF9sYXp5ICAgICBcbiAgcHJpbnQudGJsX3NxbCAgICAgIFxuIn0= -->
+<pre><code>Warning: package ‘tidyverse’ was built under R version 4.2.1
+Registered S3 methods overwritten by &#39;dbplyr&#39;:
+  method         from
+  print.tbl_lazy     
+  print.tbl_sql      </code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoi4pSA4pSAIEF0dGFjaGluZyBwYWNrYWdlcyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlIDEuMy4yIOKUgOKUgFxu4pyUIGdncGxvdDIgMy4zLjYgICAgIOKclCByZWFkciAgIDIuMS4zXG7inJQgdGliYmxlICAzLjEuOCAgICAg4pyUIHB1cnJyICAgMC4zLjVcbuKclCB0aWR5ciAgIDEuMi4xICAgICDinJQgZm9yY2F0cyAwLjUuMlxuIn0= -->
+<pre><code>── Attaching packages ───────────────────────────────────────────────────────────────────────────────────── tidyverse 1.3.2 ──
+✔ ggplot2 3.3.6     ✔ readr   2.1.3
+✔ tibble  3.1.8     ✔ purrr   0.3.5
+✔ tidyr   1.2.1     ✔ forcats 0.5.2</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhnZ3Bsb3Qy4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjFcbldhcm5pbmc6IHBhY2thZ2Ug4oCYdGliYmxl4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjFcbldhcm5pbmc6IHBhY2thZ2Ug4oCYdGlkeXLigJkgd2FzIGJ1aWx0IHVuZGVyIFIgdmVyc2lvbiA0LjIuMVxuV2FybmluZzogcGFja2FnZSDigJhyZWFkcuKAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMi4xXG5XYXJuaW5nOiBwYWNrYWdlIOKAmHB1cnJy4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjFcbldhcm5pbmc6IHBhY2thZ2Ug4oCYZm9yY2F0c+KAmSB3YXMgYnVpbHQgdW5kZXIgUiB2ZXJzaW9uIDQuMi4xXG4ifQ== -->
+<pre><code>Warning: package ‘ggplot2’ was built under R version 4.2.1
+Warning: package ‘tibble’ was built under R version 4.2.1
+Warning: package ‘tidyr’ was built under R version 4.2.1
+Warning: package ‘readr’ was built under R version 4.2.1
+Warning: package ‘purrr’ was built under R version 4.2.1
+Warning: package ‘forcats’ was built under R version 4.2.1</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-output-begin eyJkYXRhIjoi4pSA4pSAIENvbmZsaWN0cyDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIDilIAgdGlkeXZlcnNlX2NvbmZsaWN0cygpIOKUgOKUgFxu4pyWIGRwbHlyOjpmaWx0ZXIoKSBtYXNrcyBzdGF0czo6ZmlsdGVyKClcbuKcliBkcGx5cjo6bGFnKCkgICAgbWFza3Mgc3RhdHM6OmxhZygpXG4ifQ== -->
+<pre><code>── Conflicts ──────────────────────────────────────────────────────────────────────────────────────── tidyverse_conflicts() ──
+✖ dplyr::filter() masks stats::filter()
+✖ dplyr::lag()    masks stats::lag()</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShoZXJlKVxuYGBgIn0= -->
+<pre class="r"><code>library(here)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhoZXJl4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjFcbmhlcmUoKSBzdGFydHMgYXQgVTovRFMyNDEtQ2xhc3MtUHJvamVjdFxuIn0= -->
+<pre><code>Warning: package ‘here’ was built under R version 4.2.1
+here() starts at U:/DS241-Class-Project</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShqYW5pdG9yKVxuYGBgIn0= -->
+<pre class="r"><code>library(janitor)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhqYW5pdG9y4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjFcblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmGphbml0b3LigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3RzIGFyZSBtYXNrZWQgZnJvbSDigJhwYWNrYWdlOnN0YXRz4oCZOlxuXG4gICAgY2hpc3EudGVzdCwgZmlzaGVyLnRlc3RcbiJ9 -->
+<pre><code>Warning: package ‘janitor’ was built under R version 4.2.1
+
+Attaching package: ‘janitor’
+
+The following objects are masked from ‘package:stats’:
+
+    chisq.test, fisher.test</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShtYXBzKVxuYGBgIn0= -->
+<pre class="r"><code>library(maps)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhtYXBz4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjFcblxuQXR0YWNoaW5nIHBhY2thZ2U6IOKAmG1hcHPigJlcblxuVGhlIGZvbGxvd2luZyBvYmplY3QgaXMgbWFza2VkIGZyb20g4oCYcGFja2FnZTpwdXJycuKAmTpcblxuICAgIG1hcFxuIn0= -->
+<pre><code>Warning: package ‘maps’ was built under R version 4.2.1
+
+Attaching package: ‘maps’
+
+The following object is masked from ‘package:purrr’:
+
+    map</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShsdWJyaWRhdGUpXG5gYGAifQ== -->
+<pre class="r"><code>library(lubridate)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhsdWJyaWRhdGXigJkgd2FzIGJ1aWx0IHVuZGVyIFIgdmVyc2lvbiA0LjIuMVxuXG5BdHRhY2hpbmcgcGFja2FnZTog4oCYbHVicmlkYXRl4oCZXG5cblRoZSBmb2xsb3dpbmcgb2JqZWN0cyBhcmUgbWFza2VkIGZyb20g4oCYcGFja2FnZTpiYXNl4oCZOlxuXG4gICAgZGF0ZSwgaW50ZXJzZWN0LCBzZXRkaWZmLCB1bmlvblxuIn0= -->
+<pre><code>Warning: package ‘lubridate’ was built under R version 4.2.1
+
+Attaching package: ‘lubridate’
+
+The following objects are masked from ‘package:base’:
+
+    date, intersect, setdiff, union</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeShnYmZzKVxuYGBgIn0= -->
+<pre class="r"><code>library(gbfs)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJhnYmZz4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjJcbiJ9 -->
+<pre><code>Warning: package ‘gbfs’ was built under R version 4.2.2</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxubGlicmFyeSh0YXNrc2NoZWR1bGVSKSAjbWlnaHQgYmUgdXNlZnVsIGZvciBydW5uaW5nIGNvZGUgZXZlcnkgbWludXRlXG5gYGAifQ== -->
+<pre class="r"><code>library(taskscheduleR) #might be useful for running code every minute</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiV2FybmluZzogcGFja2FnZSDigJh0YXNrc2NoZWR1bGVS4oCZIHdhcyBidWlsdCB1bmRlciBSIHZlcnNpb24gNC4yLjJcblJlZ2lzdGVyZWQgUzMgbWV0aG9kIG92ZXJ3cml0dGVuIGJ5ICdkYXRhLnRhYmxlJzpcbiAgbWV0aG9kICAgICAgICAgICBmcm9tXG4gIHByaW50LmRhdGEudGFibGUgICAgIFxuIn0= -->
+<pre><code>Warning: package ‘taskscheduleR’ was built under R version 4.2.2
+Registered S3 method overwritten by &#39;data.table&#39;:
+  method           from
+  print.data.table     </code></pre>
+<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
@@ -1833,8 +1934,40 @@ while(i &lt; 60) {
 }</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuZmlsZW5hbWU9IFwiVTovRFMyNDEtQ2xhc3MtUHJvamVjdC9hbmFseXNpcy90ZXN0LmNzdlwiXG5oZWFkZXJzID0gZGF0YS5mcmFtZShcInN0YXRpb25faWRcIiwgXCJudW1fZG9ja3NfYXZhaWxhYmxlXCIsIFwibnVtX2RvY2tzX2Rpc2FibGVkXCIsIFwibnVtX2Jpa2VzX2F2YWlsYWJsZVwiLFxuICAgICAgICAgICAgXCJudW1fZWJpa2VzX2F2YWlsYWJsZVwiLCBcIm51bV9iaWtlc19kaXNhYmxlZFwiLCBcInRvdGFsX2Jpa2VzX2F2YWlsYWJsZVwiKVxuXG53cml0ZS50YWJsZShoZWFkZXJzLCBmaWxlID0gZmlsZW5hbWUsIGFwcGVuZD1UUlVFLCByb3cubmFtZXMgPSBGQUxTRSxcbiAgICAgICAgICAgIGNvbC5uYW1lcyA9IEZBTFNFLCBzZXAgPSBcIixcIilcbmBgYCJ9 -->
+<pre class="r"><code>filename= &quot;U:/DS241-Class-Project/analysis/test.csv&quot;
+headers = data.frame(&quot;station_id&quot;, &quot;num_docks_available&quot;, &quot;num_docks_disabled&quot;, &quot;num_bikes_available&quot;,
+            &quot;num_ebikes_available&quot;, &quot;num_bikes_disabled&quot;, &quot;total_bikes_available&quot;)
 
-<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNsYXNzIFByb2plY3QiDQpkYXRlOiAgIjIwMjItMTEtMjkiDQphdXRob3I6ICJOYXRlIFNtdWxsZW4iDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmxpYnJhcnkobGVoZHIpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShzdHJpbmdyKQ0KDQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmxpYnJhcnkoaGVyZSkNCmxpYnJhcnkoamFuaXRvcikNCmxpYnJhcnkobWFwcykNCmxpYnJhcnkobHVicmlkYXRlKQ0KbGlicmFyeShnYmZzKQ0KDQpsaWJyYXJ5KHRhc2tzY2hlZHVsZVIpICNtaWdodCBiZSB1c2VmdWwgZm9yIHJ1bm5pbmcgY29kZSBldmVyeSBtaW51dGUNCmBgYA0KDQpgYGB7cn0NCmRjX29kIDwtIGdyYWJfbG9kZXMoc3RhdGUgPSAiZGMiLCB5ZWFyID0gMjAxOSwgbG9kZXNfdHlwZSA9ICJvZCIsIGpvYl90eXBlID0gIkpUMDEiLCANCiAgICAgICAgICAgc2VnbWVudCA9ICJTMDAwIiwgc3RhdGVfcGFydCA9ICJtYWluIiwgYWdnX2dlbyA9ICJ0cmFjdCIpDQpgYGANCg0KYGBge3J9DQpkY19yYWMgPC0gZ3JhYl9sb2RlcyhzdGF0ZSA9ICJkYyIsIHllYXIgPSAyMDE5LCBsb2Rlc190eXBlID0gInJhYyIsIA0KICAgICAgICAgICAgICAgICAgICAgam9iX3R5cGUgPSAiSlQwMSIsIHNlZ21lbnQgPSAiUzAwMCIsIGFnZ19nZW8gPSAidHJhY3QiKQ0KYGBgDQoNCmBgYHtyfQ0KZGNfd2FjIDwtIGdyYWJfbG9kZXMoc3RhdGUgPSAiZGMiLCB5ZWFyID0gMjAxOSwgbG9kZXNfdHlwZSA9ICJ3YWMiLCANCiAgICAgICAgICAgICAgICAgICAgIGpvYl90eXBlID0gIkpUMDEiLCBzZWdtZW50ID0gIlMwMDAiLCBhZ2dfZ2VvID0gInRyYWN0IikNCmBgYA0KDQpgYGB7cn0NCnN0YXRpb25fc3RhdHVzIDwtIGdldF9zdGF0aW9uX3N0YXR1cygiY2FiaSIpICU+JSANCiAgc2VsZWN0KHN0YXRpb25faWQsIG51bV9kb2Nrc19hdmFpbGFibGUsIG51bV9kb2Nrc19kaXNhYmxlZCwgDQogICAgICAgICBudW1fYmlrZXNfYXZhaWxhYmxlLCBudW1fZWJpa2VzX2F2YWlsYWJsZSwgbnVtX2Jpa2VzX2Rpc2FibGVkKSAlPiUNCiAgbXV0YXRlKHRvdGFsX2Jpa2VzX2F2YWlsYWJsZSA9IA0KICBudW1fYmlrZXNfYXZhaWxhYmxlICsgbnVtX2RvY2tzX2F2YWlsYWJsZSArIG51bV9lYmlrZXNfYXZhaWxhYmxlKQ0KYGBgDQoNCmBgYHtyfQ0KI2NvZGUgdGhhdCBydW5zIGV2ZXJ5IG1pbnV0ZSBmb3IgYW4gaG91cg0KI3Byb2JsZW0gd2l0aCB0aGlzIGNvZGUgaXMgdGhhdCBpdCBkb2Vzbid0IGFjY291bnQgZm9yIHRoZSB0aW1lIGl0IHRha2VzIHRvIGRvDQojVGhlIGNhbGN1bGF0aW9uDQppID0gMA0Kd2hpbGUoaSA8IDYwKSB7DQogIHByaW50KHBhc3RlKCJpdHMgYmVlbiIsIGksICJtaW51dGVzIHNpbmNlIHRoaXMgc3RhcnRlZCwgZ2l2ZSBvciB0YWtlIGEgYml0IikpDQogIGkgPSBpICsgMQ0KICANCiAgU3lzLnNsZWVwKDYwKQ0KfQ0KYGBgDQo=</div>
+write.table(headers, file = filename, append=TRUE, row.names = FALSE,
+            col.names = FALSE, sep = &quot;,&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxudGhpc2ZpbGU9aGVyZShcImFuYWx5c2lzXCIgLFwidGVzdC5jc3ZcIilcblxudGVzdCA9IHJlYWRfY3N2KHRoaXNmaWxlKSAlPiUgY2xlYW5fbmFtZXMoKVxuYGBgIn0= -->
+<pre class="r"><code>thisfile=here(&quot;analysis&quot; ,&quot;test.csv&quot;)
+
+test = read_csv(thisfile) %&gt;% clean_names()</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-output-begin eyJkYXRhIjoiUm93czogMCBDb2x1bW5zOiA3XG7ilIDilIAgQ29sdW1uIHNwZWNpZmljYXRpb24g4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSA4pSAXG5EZWxpbWl0ZXI6IFwiLFwiXG5jaHIgKDcpOiBzdGF0aW9uX2lkLCBudW1fZG9ja3NfYXZhaWxhYmxlLCBudW1fZG9ja3NfZGlzYWJsZWQsIG51bV9iaWtlc19hdmFpbGFibGUsIG51bV9lYmlrZXNfYXZhaWxhYmxlLCBudW1fYmlrZXNfZGlzYWJsZS4uLlxuXG7ihLkgVXNlIGBzcGVjKClgIHRvIHJldHJpZXZlIHRoZSBmdWxsIGNvbHVtbiBzcGVjaWZpY2F0aW9uIGZvciB0aGlzIGRhdGEuXG7ihLkgU3BlY2lmeSB0aGUgY29sdW1uIHR5cGVzIG9yIHNldCBgc2hvd19jb2xfdHlwZXMgPSBGQUxTRWAgdG8gcXVpZXQgdGhpcyBtZXNzYWdlLlxuIn0= -->
+<pre><code>Rows: 0 Columns: 7
+── Column specification ──────────────────────────────────────────────────────────────────────────────────────────────────────
+Delimiter: &quot;,&quot;
+chr (7): station_id, num_docks_available, num_docks_disabled, num_bikes_available, num_ebikes_available, num_bikes_disable...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<!-- rnb-output-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+<!-- rnb-text-end -->
+
+<div id="rmd-source-code">LS0tDQp0aXRsZTogIkNsYXNzIFByb2plY3QiDQpkYXRlOiAgIjIwMjItMTEtMjkiDQphdXRob3I6ICJOYXRlIFNtdWxsZW4iDQpvdXRwdXQ6IGh0bWxfbm90ZWJvb2sNCi0tLQ0KDQpgYGB7cn0NCmxpYnJhcnkobGVoZHIpDQpsaWJyYXJ5KGRwbHlyKQ0KbGlicmFyeShzdHJpbmdyKQ0KDQpsaWJyYXJ5KHRpZHl2ZXJzZSkNCmxpYnJhcnkoaGVyZSkNCmxpYnJhcnkoamFuaXRvcikNCmxpYnJhcnkobWFwcykNCmxpYnJhcnkobHVicmlkYXRlKQ0KbGlicmFyeShnYmZzKQ0KDQpsaWJyYXJ5KHRhc2tzY2hlZHVsZVIpICNtaWdodCBiZSB1c2VmdWwgZm9yIHJ1bm5pbmcgY29kZSBldmVyeSBtaW51dGUNCmBgYA0KDQpgYGB7cn0NCmRjX29kIDwtIGdyYWJfbG9kZXMoc3RhdGUgPSAiZGMiLCB5ZWFyID0gMjAxOSwgbG9kZXNfdHlwZSA9ICJvZCIsIGpvYl90eXBlID0gIkpUMDEiLCANCiAgICAgICAgICAgc2VnbWVudCA9ICJTMDAwIiwgc3RhdGVfcGFydCA9ICJtYWluIiwgYWdnX2dlbyA9ICJ0cmFjdCIpDQpgYGANCg0KYGBge3J9DQpkY19yYWMgPC0gZ3JhYl9sb2RlcyhzdGF0ZSA9ICJkYyIsIHllYXIgPSAyMDE5LCBsb2Rlc190eXBlID0gInJhYyIsIA0KICAgICAgICAgICAgICAgICAgICAgam9iX3R5cGUgPSAiSlQwMSIsIHNlZ21lbnQgPSAiUzAwMCIsIGFnZ19nZW8gPSAidHJhY3QiKQ0KYGBgDQoNCmBgYHtyfQ0KZGNfd2FjIDwtIGdyYWJfbG9kZXMoc3RhdGUgPSAiZGMiLCB5ZWFyID0gMjAxOSwgbG9kZXNfdHlwZSA9ICJ3YWMiLCANCiAgICAgICAgICAgICAgICAgICAgIGpvYl90eXBlID0gIkpUMDEiLCBzZWdtZW50ID0gIlMwMDAiLCBhZ2dfZ2VvID0gInRyYWN0IikNCmBgYA0KDQpgYGB7cn0NCnN0YXRpb25fc3RhdHVzIDwtIGdldF9zdGF0aW9uX3N0YXR1cygiY2FiaSIpICU+JSANCiAgc2VsZWN0KHN0YXRpb25faWQsIG51bV9kb2Nrc19hdmFpbGFibGUsIG51bV9kb2Nrc19kaXNhYmxlZCwgDQogICAgICAgICBudW1fYmlrZXNfYXZhaWxhYmxlLCBudW1fZWJpa2VzX2F2YWlsYWJsZSwgbnVtX2Jpa2VzX2Rpc2FibGVkKSAlPiUNCiAgbXV0YXRlKHRvdGFsX2Jpa2VzX2F2YWlsYWJsZSA9IA0KICBudW1fYmlrZXNfYXZhaWxhYmxlICsgbnVtX2RvY2tzX2F2YWlsYWJsZSArIG51bV9lYmlrZXNfYXZhaWxhYmxlKQ0KYGBgDQoNCmBgYHtyfQ0KI2NvZGUgdGhhdCBydW5zIGV2ZXJ5IG1pbnV0ZSBmb3IgYW4gaG91cg0KI3Byb2JsZW0gd2l0aCB0aGlzIGNvZGUgaXMgdGhhdCBpdCBkb2Vzbid0IGFjY291bnQgZm9yIHRoZSB0aW1lIGl0IHRha2VzIHRvIGRvDQojVGhlIGNhbGN1bGF0aW9uDQppID0gMA0Kd2hpbGUoaSA8IDYwKSB7DQogIHByaW50KHBhc3RlKCJpdHMgYmVlbiIsIGksICJtaW51dGVzIHNpbmNlIHRoaXMgc3RhcnRlZCwgZ2l2ZSBvciB0YWtlIGEgYml0IikpDQogIGkgPSBpICsgMQ0KICANCiAgU3lzLnNsZWVwKDYwKQ0KfQ0KYGBgDQoNCmBgYHtyfQ0KZmlsZW5hbWU9ICJVOi9EUzI0MS1DbGFzcy1Qcm9qZWN0L2FuYWx5c2lzL3Rlc3QuY3N2Ig0KaGVhZGVycyA9IGRhdGEuZnJhbWUoInN0YXRpb25faWQiLCAibnVtX2RvY2tzX2F2YWlsYWJsZSIsICJudW1fZG9ja3NfZGlzYWJsZWQiLCAibnVtX2Jpa2VzX2F2YWlsYWJsZSIsDQogICAgICAgICAgICAibnVtX2ViaWtlc19hdmFpbGFibGUiLCAibnVtX2Jpa2VzX2Rpc2FibGVkIiwgInRvdGFsX2Jpa2VzX2F2YWlsYWJsZSIpDQoNCndyaXRlLnRhYmxlKGhlYWRlcnMsIGZpbGUgPSBmaWxlbmFtZSwgYXBwZW5kPVRSVUUsIHJvdy5uYW1lcyA9IEZBTFNFLA0KICAgICAgICAgICAgY29sLm5hbWVzID0gRkFMU0UsIHNlcCA9ICIsIikNCmBgYA0KDQpgYGB7cn0NCnRoaXNmaWxlPWhlcmUoImFuYWx5c2lzIiAsInRlc3QuY3N2IikNCg0KdGVzdCA9IHJlYWRfY3N2KHRoaXNmaWxlKSAlPiUgY2xlYW5fbmFtZXMoKQ0KYGBgDQoNCg==</div>
 
 
 
