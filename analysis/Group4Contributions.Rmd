@@ -1,0 +1,12 @@
+---
+title: "Group 4 Contributions"
+date:  "2022-12-07"
+author: "Nate Smullen, Alex Lindquist, Wynter Malone"
+output: html_notebook
+---
+
+We all worked equally on the project. We had several meetings as a group, both 
+in and out of class. During the meetings, we worked toward the project together.
+During some of them, we would each take part of the assignment home to work on.
+We wrote most of the code together, sharing a computer. 
+
