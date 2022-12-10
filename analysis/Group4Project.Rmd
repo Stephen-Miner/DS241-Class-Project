@@ -11,7 +11,6 @@ library(tidyverse)
 library(here)
 library(janitor)
 library(gbfs)
-library(maps)
 ```
 Do bikes ever completely run out at a station in the Capital Bikeshare?
 
@@ -19,16 +18,17 @@ Do bikes ever completely run out at a station in the Capital Bikeshare?
 Using get_station_status() from the gbfs package, we got the status of each station once per minute during a high-traffic time when the bikes are more likely to run out.
 ```{r}
 #Code that runs about every minute to grab station info on chosen variables.
-i = 0
+
 #Replace file path to local machine path
-filename= "C:/Users/smull/OneDrive/Documents/RStudio/DS241-Class-Project/data_raw/station_info.csv"
+filename= "C:/Users/vvexi/OneDrive/Documents/R_Scripts/DS241-Class-Project/data_raw/station_info.csv"
 
 headers = data.frame("station_id", "num_bikes_available",
                      "num_ebikes_available", "last_updated", "total_bikes_available")
 write.table(headers, file = filename, row.names = FALSE,
             col.names = FALSE, sep = ",")
 
-while(i < 3) {
+i = 0
+while(i < 60) {
   print(paste("its been", i, "minutes since this started, give or take a bit"))
   i = i + 1
   
@@ -74,6 +74,8 @@ avg_bikes2 = df_stations %>% group_by(station_id) %>%
 
 df_stations %>% filter(station_id %in% avg_bikes2$station_id) %>% ggplot(aes(last_updated, total_bikes_available)) + geom_line() + geom_point() + facet_wrap(~station_id)
 ```
+This graph shows that there are situations where the stations will run out of bikes, and there are several stations that already had no bikes. Some of the stations are still active, unlike we thought they might be, they just did not have any bikes, such as in the case with stations 33 and 591 in this example.
+
 
 We also decided to take a look specifically at when the number of ebikes run out, rather than the total amount of bikes. This lets us see if the bikes are running out proportionally, or if there is a type of bike that is taken before others. We did this very similar to how we did it with the total number of bikes available.
 ```{r}
@@ -81,4 +83,24 @@ avg_ebikes <- df_stations %>% group_by(station_id) %>% summarize(mean(num_ebikes
 
 df_stations %>% filter(station_id %in% avg_ebikes$station_id) %>% ggplot(aes(last_updated, num_ebikes_available)) + geom_line() + geom_point() + facet_wrap(~station_id)
 ```
-This shows us that there are not very many ebikes at most stations. This could be explained by people dropping ebikes off not at stations, or there could simply be a lack of ebikes. If we were to continue working with this data, this is something we might look further into. If we discovered that there is a lack of ebikes in general, then we might suggest that dcbikeshare should add more ebikes to rent. 
+This plot is impossible to read, so we decided to filter the data similarly to how we did it for the total bikes; showing some of the stations that were close to running out. 
+
+```{r}
+avg_ebikes2 = df_stations %>% group_by(station_id) %>% 
+  summarize(mean(num_ebikes_available)) %>% clean_names() %>% 
+  filter(mean_num_ebikes_available > 0) %>% 
+  slice_min(order_by = mean_num_ebikes_available, n=20)
+
+df_stations %>% filter(station_id %in% avg_ebikes2$station_id) %>% ggplot(aes(last_updated, num_ebikes_available)) + geom_line() + geom_point() + facet_wrap(~station_id)
+```
+A lot of the graphs show a bike being rented out almost immediately after being returned. To investigate further how long these bikes were being left at the stations before being rented again, we picked station 110 to take a closer look at.
+
+```{r}
+avg_ebikes3 = df_stations %>% group_by(station_id) %>% 
+  summarize(mean(num_ebikes_available)) %>% clean_names() %>% 
+  filter(station_id == 110)
+
+df_stations %>% filter(station_id %in% avg_ebikes3$station_id) %>% ggplot(aes(last_updated, num_ebikes_available)) + geom_line() + geom_point() + facet_wrap(~station_id)
+```
+
+This shows us that ebikes are rented very quickly, as in the case of station 110, an ebike was returned and then rented again within 3 minutes, which is similar to other graphs shown above. This could signify that ebikes are very popular, as they are being rented right as they are being returned. Perhaps a solution to this problem would be to get more ebikes, as the demand is clearly shown.
