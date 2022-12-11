@@ -108,25 +108,26 @@ df_census_2 = df_census %>% mutate(order = case_when(
 
 ## Classifying Bikeshare Data into Block Groups 
 ```{r}
-#library(sf)
+library(sf)
 
-#bikeshare_5 <- bikeshare %>% select(9,10)
+bikeshare_5 <- bikeshare %>% select(9,10)
 
-#ca <- tidycensus::get_acs(state = "DC", geography = "block group",
-#              variables = "B19013_001", geometry = TRUE)
+ca <- tidycensus::get_acs(state = "DC", geography = "block group",
+              variables = "B19013_001", geometry = TRUE)
 
-#bikeshare_5 = bikeshare_5 %>%  st_as_sf(coords = c("start_lng", "start_lat"),crs = st_crs(ca))
-#bikeshare_5$tract <- as.numeric(st_within(bikeshare_5, ca)) # this is fast for 1e6 points
+bikeshare_5 = bikeshare_5 %>%  st_as_sf(coords = c("start_lng", "start_lat"),crs = st_crs(ca))
+bikeshare_5$tract <- as.numeric(st_within(bikeshare_5, ca)) # this is fast for 1e6 points
 
 
-#head(bikeshare_5) # tract is the row-index for overlapping census tract record in 'ca'
+head(bikeshare_5) # tract is the row-index for overlapping census tract record in 'ca'
 
 # but part would take forever with 1e6 points
-#library(ggplot2)
+library(ggplot2)
 
-#ggplot(ca) +
-#  geom_sf() +
-#  geom_sf(data = bikeshare_5, aes(color = is.na(tract)))
+ggplot(ca) +
+  geom_sf() +
+  geom_sf(data = bikeshare_5, aes(color = is.na(tract)))
+
 
 ## -------------- https://stackoverflow.com/questions/52248394/get-census-tract-from-lat-lon-using-tigris
 
@@ -184,6 +185,19 @@ make_graphs(20)
 ```
 
 ```{r}
+# taking median of median income 
+median_inc_2 <- na.omit(median_inc)
+overall_median <- median(median_inc_2$estimate)
+
+median_inc_2 <- median_inc_2 %>%
+  mutate(classification = case_when(
+    estimate < overall_median ~ "below_median",
+    estimate == overall_median ~ "median",
+    estimate > overall_median ~ "above_median"
+  ))
+
+
+
 
 ```
 
