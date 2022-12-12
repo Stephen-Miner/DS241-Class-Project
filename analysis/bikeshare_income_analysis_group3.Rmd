@@ -1,0 +1,350 @@
+---
+title: "Group 3 Project"
+output: html_notebook
+---
+The question proposed is the following: Do "rich" neighborhoods bike-share differently than poor?
+
+In order to do so, census data and bikeshare data are used. To access census data, an api key is needed.
+This can be obtained by visiting https://api.census.gov/data/key_signup.html 
+
+## Loading Packages
+```{r}
+library(lehdr)
+library(dplyr)
+library(knitr)
+library(tidyverse)
+library(janitor)
+library(lubridate)
+library(here)
+library(sf)
+library(tmap)
+library(tidycensus)
+library(plotly)
+library(ggforce)
+library(tigris)
+library(forcats)
+```
+
+## Census Data Available
+```{r}
+census_api_key("260b47c83abf4017c26b5022527d1558744b41cf", overwrite = TRUE)
+v20 = load_variables(2018,"acs5")
+```
+```{r}
+df_census_3=get_acs(geography = "tract",
+                  variables=c("median_income" = "B19013_001"),
+                  state="DC",geometry=TRUE,year=2018) 
+df_cens=df_census %>% select(-moe) %>% spread(variable,estimate) 
+```
+```{r}
+bikeshare <- read_csv(here("data_raw", "202209-capitalbikeshare-tripdata.zip"))
+```
+```{r}
+median_inc <- df_census_3 %>% select(1,4,6)
+bikeshare_start <- bikeshare %>% select(6,9,10)
+```
+
+```{r}
+neigh = st_read(here("data_raw","dc_neigh.geojson")) %>% clean_names()
+```
+```{r}
+#bikeshare_start_join = st_join(bikeshare_start,neigh,largest=TRUE)
+```
+
+
+
+```{r}
+
+```
+
+
+
+```{r}
+tmap_mode("view")
+
+df_census=get_acs(geography = "tract",
+                  variables=c("under_10000"="B19001_002", 
+                              "10000_to_14999"="B19001_003", 
+                              "15000_to_19999"="B19001_004", 
+                              "20000_to_24999"="B19001_005", 
+                              "25000_to_29999"="B19001_006", 
+                              "30000_to_34999"="B19001_007", 
+                              "35000_to_39999"="B19001_008", 
+                              "40000_to_44999"="B19001_009", 
+                              "45000_to_49999"="B19001_010", 
+                              "50000_to_59999"="B19001_011", 
+                              "60000_to_74999"="B19001_012", 
+                              "75000_to_99999"="B19001_013",
+                              "100000_to_124999"="B19001_014", 
+                              "125000_to_149999"="B19001_015", 
+                              "150000_to_199999"="B19001_016", 
+                              "200000_or_more"="B19001_017"),
+                  state="DC",geometry=TRUE,year=2018) 
+df_cens=df_census %>% select(-moe) %>% spread(variable,estimate) 
+```
+
+## Reording Mapping 
+We create a mapping to reorder the income brackets from lowest (under 10,000) to highest (200,000 or more). n total, there are 16 different income brackets. 
+```{r}
+df_census_2 = df_census %>% mutate(order = case_when(
+    variable == "under_10000" ~ 1, 
+    variable == "10000_to_14999" ~ 2, 
+    variable == "15000_to_19999" ~ 3,
+    variable == "20000_to_24999" ~ 4,
+    variable == "25000_to_29999" ~ 5,
+    variable == "30000_to_34999" ~ 6,
+    variable == "35000_to_39999" ~ 7,
+    variable == "40000_to_44999" ~ 8,
+    variable == "45000_to_49999" ~ 9,
+    variable == "50000_to_59999" ~ 10,
+    variable == "60000_to_74999" ~ 11,
+    variable == "75000_to_99999" ~ 12,
+    variable == "100000_to_124999" ~ 13,
+    variable == "125000_to_149999" ~ 14,
+    variable == "150000_to_199999" ~ 15,
+    variable == "200000_or_more" ~ 16,))
+```
+
+
+## Classifying Bikeshare Data into Block Groups 
+```{r}
+library(sf)
+
+bikeshare_5 <- bikeshare %>% select(3,4,9,10)
+
+ca <- tidycensus::get_acs(state = "DC", geography = "block group",
+              variables = "B19013_001", geometry = TRUE)
+
+bikeshare_5 = bikeshare_5 %>%  st_as_sf(coords = c("start_lng", "start_lat"),crs = st_crs(ca))
+bikeshare_5$tract <- as.numeric(st_within(bikeshare_5, ca)) # this is fast for 1e6 points
+
+
+head(bikeshare_5) # tract is the row-index for overlapping census tract record in 'ca'
+
+# but part would take forever with 1e6 points
+library(ggplot2)
+
+ggplot(ca) +
+  geom_sf() +
+  geom_sf(data = bikeshare_5, aes(color = is.na(tract)))
+
+
+## -------------- https://stackoverflow.com/questions/52248394/get-census-tract-from-lat-lon-using-tigris
+
+library(tigris)
+library(tidyverse)
+library(sf)
+
+ca_tracts <- tracts("DC", class = "sf") %>%
+  select(GEOID, TRACTCE)
+
+bbox <- st_bbox(ca_tracts)
+
+my_points_tract <- st_join(bikeshare_5, ca_tracts) 
+my_points_tract_revised <- na.omit(my_points_tract)
+
+```
+
+## Function for Visualizing Income Data
+We create a function pointing to a ggplot with the arguments graph_number. This argument can take the value from 1 to 20. Each page refers to a different grouping of 9 graphs. 
+```{r}
+make_graphs <- function(graph_number){
+    ggplot(data=df_census_2, mapping=aes(x= fct_reorder(variable, order, .desc = FALSE))) +
+        geom_bar(aes(weight=estimate), fill="navyblue") + 
+        theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+        facet_wrap_paginate(~GEOID, nrow = 3, ncol = 3, page = graph_number) + 
+        xlab("Income Range, increasing") +
+        ylab("Number of People")+
+        ggtitle("Count per Income Bracket in DC Census Region")
+}
+```
+
+## Visualizing Graph Data
+We call the function on numbers 1 - 20 for 20 pages of 9 graphs each. 
+```{r}
+make_graphs(1)
+make_graphs(2)
+make_graphs(3)
+make_graphs(4)
+make_graphs(5)
+make_graphs(6)
+make_graphs(7)
+make_graphs(8)
+make_graphs(9)
+make_graphs(10)
+make_graphs(11)
+make_graphs(12)
+make_graphs(13)
+make_graphs(14)
+make_graphs(15)
+make_graphs(16)
+make_graphs(17)
+make_graphs(18)
+make_graphs(19)
+make_graphs(20)
+```
+
+```{r}
+# taking median of median income 
+median_inc_2 <- na.omit(median_inc)
+overall_median <- median(median_inc_2$estimate)
+
+median_inc_2 <- median_inc_2 %>%
+  mutate(classification = case_when(
+    estimate < overall_median ~ "below_median",
+    estimate == overall_median ~ "median",
+    estimate > overall_median ~ "above_median"
+  ))
+```
+
+```{r}
+library(tigris)
+library(tidyverse)
+library(sf)
+
+
+
+ca_tracts <- median_inc %>% select(GEOID)
+
+
+
+bbox <- st_bbox(ca_tracts)
+
+
+
+my_points_tract <- st_join(bikeshare_5, ca_tracts)
+my_points_tract_revised <- na.omit(my_points_tract)
+not_analysis <- my_points_tract_revised %>% filter(!(GEOID %in% median_inc$GEOID))
+unique(not_analysis$GEOID)
+```
+
+```{r}
+classifications <- as.data.frame(median_inc_2) %>% select(1,4)
+```
+
+```{r}
+bikeshare_with_times <- my_points_tract_revised %>%
+  mutate(hour_of_day=hour(started_at))
+```
+
+```{r}
+bikeshare_with_times_2 <- left_join(bikeshare_with_times,classifications,by="GEOID") %>% na.omit(classification)
+```
+
+```{r}
+bikeshare_with_times_2 <- bikeshare_with_times_2 %>%
+  group_by(classification,hour_of_day) %>%
+  summarise(n=n())
+```
+
+```{r}
+ggplot(bikeshare_with_times_2, aes(x=hour_of_day)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+median_inc_ranked <- median_inc_2
+median_inc_ranked$rank = rank(desc(median_inc_ranked$estimate))
+```
+
+```{r}
+median_inc_subset <- median_inc_ranked %>% slice(which(rank>=1 & rank<=10 | rank<=177 & rank>=166))
+```
+
+```{r}
+classifications_2 <- as.data.frame(median_inc_subset) %>% select(1,3)
+
+bikeshare_with_times_3 <- left_join(bikeshare_with_times,classifications_2,by="GEOID") %>% na.omit(classification)
+
+bikeshare_with_times_3 <- bikeshare_with_times_3 %>%
+  group_by(classification,hour_of_day) %>%
+  summarise(n=n())
+```
+
+```{r}
+ggplot(bikeshare_with_times_3, aes(x=hour_of_day)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+bikeshare_durations <- my_points_tract_revised %>%
+  mutate(duration=difftime(ended_at,started_at,units="mins"))
+```
+
+```{r}
+classifications_3 <- as.data.frame(median_inc_2) %>% select(1,4)
+```
+
+```{r}
+bikeshare_durations <- left_join(bikeshare_durations,classifications_3,by="GEOID") %>% na.omit(classification) %>%
+```
+
+```{r}
+bikeshare_durations <- bikeshare_durations %>%
+  group_by(classification,duration) %>%
+  summarise(n=n())
+```
+```{r}
+bikeshare_durations <- bikeshare_durations %>% filter(classification != "median")
+```
+
+
+```{r}
+ggplot(bikeshare_durations, aes(x=duration)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+bikeshare_durations <- bikeshare_durations %>% filter(duration<=250, classification != "median")
+```
+
+
+```{r}
+ggplot(bikeshare_durations, aes(x=duration)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+bikeshare_durations <- bikeshare_durations %>% filter(duration<=100, classification != "median")
+```
+
+```{r}
+ggplot(bikeshare_durations, aes(x=duration)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+bikeshare_durations <- bikeshare_durations %>% filter(duration<=50, classification != "median")
+```
+
+```{r}
+ggplot(bikeshare_durations, aes(x=duration)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free_y")
+```
+
+B19013_001
+
+income in census
+less than  $20,000
+$20,000 to $34,999
+$35,000 to $49,999
+$50,000 to $74,999
+$75,000 to $99,999
+$100,000 to $149,999
+$150,000 or more
+
+#Do "rich" neighborhoods bike-share differently than poor?
+##Game plan
+- define differently, rich, and poor
+- Does resident income or worker income affect bikeshare in a neighborhood more?
+- Different ways to measure income. Mean 
+    - Distributions of income as opposed to single value
+- Look at v20 dataset
+    - have some categories broken down into income brackets
+    - how many people are in each bracket 
+    - you can pull how many households, people... in block
+        - there may be breakdown of individuals, as well as households
+        - now we have essentially two histograms want to show
+            - can draw histogram for any census block
+            - can either plot histogram side by side
+            - look at histograms, see what's there. If you see other characteristics, it will give you a perspective of approach  
+- Compare visually, pull data of breakdown things then see how they are different
+
+
+B19013A_001
+B19013B_001
+"median_inc"="B06011_001"

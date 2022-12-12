@@ -1,0 +1,10 @@
+---
+title: "Group 3 Contributions"
+author: "Rosalina Delwiche, Liam Durkin, Stephen Miner"
+output: html_document
+---
+
+We had several meetings to work on the project outside of class, but we also worked on it in class considerably.  We took turns driving and navigating.  Stephen also created the Github for the class.  Outside of class when we had time we would communicate when we worked on things and create teams calls to work on it.  Each of us specialized in a certain aspect of the project. 
+Rosalina: data loading and manipulation
+Stephen: Analysis
+Liam: Literacy
