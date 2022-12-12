@@ -48,7 +48,7 @@ bikeshare_start <- bikeshare %>% select(6,9,10)
 neigh = st_read(here("data_raw","dc_neigh.geojson")) %>% clean_names()
 ```
 ```{r}
-bikeshare_start_join = st_join(bikeshare_start,neigh,largest=TRUE)
+#bikeshare_start_join = st_join(bikeshare_start,neigh,largest=TRUE)
 ```
 
 
@@ -110,7 +110,7 @@ df_census_2 = df_census %>% mutate(order = case_when(
 ```{r}
 library(sf)
 
-bikeshare_5 <- bikeshare %>% select(9,10)
+bikeshare_5 <- bikeshare %>% select(3,4,9,10)
 
 ca <- tidycensus::get_acs(state = "DC", geography = "block group",
               variables = "B19013_001", geometry = TRUE)
@@ -195,12 +195,126 @@ median_inc_2 <- median_inc_2 %>%
     estimate == overall_median ~ "median",
     estimate > overall_median ~ "above_median"
   ))
-
-
-
-
 ```
 
+```{r}
+library(tigris)
+library(tidyverse)
+library(sf)
+
+
+
+ca_tracts <- median_inc %>% select(GEOID)
+
+
+
+bbox <- st_bbox(ca_tracts)
+
+
+
+my_points_tract <- st_join(bikeshare_5, ca_tracts)
+my_points_tract_revised <- na.omit(my_points_tract)
+not_analysis <- my_points_tract_revised %>% filter(!(GEOID %in% median_inc$GEOID))
+unique(not_analysis$GEOID)
+```
+
+```{r}
+classifications <- as.data.frame(median_inc_2) %>% select(1,4)
+```
+
+```{r}
+bikeshare_with_times <- my_points_tract_revised %>%
+  mutate(hour_of_day=hour(started_at))
+```
+
+```{r}
+bikeshare_with_times_2 <- left_join(bikeshare_with_times,classifications,by="GEOID") %>% na.omit(classification)
+```
+
+```{r}
+bikeshare_with_times_2 <- bikeshare_with_times_2 %>%
+  group_by(classification,hour_of_day) %>%
+  summarise(n=n())
+```
+
+```{r}
+ggplot(bikeshare_with_times_2, aes(x=hour_of_day)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+median_inc_ranked <- median_inc_2
+median_inc_ranked$rank = rank(desc(median_inc_ranked$estimate))
+```
+
+```{r}
+median_inc_subset <- median_inc_ranked %>% slice(which(rank>=1 & rank<=10 | rank<=177 & rank>=166))
+```
+
+```{r}
+classifications_2 <- as.data.frame(median_inc_subset) %>% select(1,3)
+
+bikeshare_with_times_3 <- left_join(bikeshare_with_times,classifications_2,by="GEOID") %>% na.omit(classification)
+
+bikeshare_with_times_3 <- bikeshare_with_times_3 %>%
+  group_by(classification,hour_of_day) %>%
+  summarise(n=n())
+```
+
+```{r}
+ggplot(bikeshare_with_times_3, aes(x=hour_of_day)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+bikeshare_durations <- my_points_tract_revised %>%
+  mutate(duration=difftime(ended_at,started_at,units="mins"))
+```
+
+```{r}
+classifications_3 <- as.data.frame(median_inc_2) %>% select(1,4)
+```
+
+```{r}
+bikeshare_durations <- left_join(bikeshare_durations,classifications_3,by="GEOID") %>% na.omit(classification) %>%
+```
+
+```{r}
+bikeshare_durations <- bikeshare_durations %>%
+  group_by(classification,duration) %>%
+  summarise(n=n())
+```
+```{r}
+bikeshare_durations <- bikeshare_durations %>% filter(classification != "median")
+```
+
+
+```{r}
+ggplot(bikeshare_durations, aes(x=duration)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+bikeshare_durations <- bikeshare_durations %>% filter(duration<=250, classification != "median")
+```
+
+
+```{r}
+ggplot(bikeshare_durations, aes(x=duration)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+bikeshare_durations <- bikeshare_durations %>% filter(duration<=100, classification != "median")
+```
+
+```{r}
+ggplot(bikeshare_durations, aes(x=duration)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free")
+```
+
+```{r}
+bikeshare_durations <- bikeshare_durations %>% filter(duration<=50, classification != "median")
+```
+
+```{r}
+ggplot(bikeshare_durations, aes(x=duration)) + geom_bar(aes(weight=n)) + facet_wrap(~classification, scale="free_y")
+```
 
 B19013_001
 
@@ -234,22 +348,3 @@ $150,000 or more
 B19013A_001
 B19013B_001
 "median_inc"="B06011_001"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
